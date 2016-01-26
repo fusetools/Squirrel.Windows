@@ -43,7 +43,7 @@ namespace VCRedistsInstaller
                         }
                         else
                         {
-                            installer.Install(false,
+                            installer.Install(true,
                                               new Progress<RedistInstallationProgressEvent>(a =>
                                               {
                                                   Console.WriteLine(a.Percentage);

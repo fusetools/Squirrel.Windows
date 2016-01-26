@@ -38,18 +38,13 @@ namespace VCRedistsInstaller
 
             var startInfo = new ProcessStartInfo(tempExeLocation, string.Join(" ", arguments))
             {
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                Verb = "runas",
+                UseShellExecute = true,
+                Verb = "runas"
             };
 
             var process = Process.Start(startInfo);
             if (process == null)
                 throw new FailedToStartProcess(tempExeLocation);
-
-            var output = process.StandardOutput.ReadToEnd();
-            var errors = process.StandardError.ReadToEnd();
 
             process.WaitForExit();
             progress.ReportProgress(100);
