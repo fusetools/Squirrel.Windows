@@ -18,9 +18,8 @@ namespace Squirrel
             var di = new DirectoryInfo(directory);
 
             return di.EnumerateFiles()
-                .Where(x => x.Name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
+                .Where(x => x.Name.Equals("Fuse.exe", StringComparison.OrdinalIgnoreCase))
                 .Select(x => x.FullName)
-                .Where(x => (GetPESquirrelAwareVersion(x) ?? -1) >= minimumVersion)
                 .ToList();
         }
 
@@ -79,6 +78,7 @@ namespace Squirrel
             // identical to the version block that actually works. I've got stuff
             // to ship, so we're just going to return '1' if we find the name in 
             // the block at all. I hate myself for this.
+            // TODO: I don't know how important this is, however I don't like it! (Tapped)
             return 1;
 
 #if __NOT__DEFINED_EVAR__

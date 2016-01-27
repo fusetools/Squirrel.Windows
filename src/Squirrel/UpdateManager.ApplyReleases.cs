@@ -64,13 +64,6 @@ namespace Squirrel
                 this.Log().Info("Starting fixPinnedExecutables");
                 this.ErrorIfThrows(() => fixPinnedExecutables(updateInfo.FutureReleaseEntry.Version));
 
-                this.Log().Info("Fixing up tray icons");
-
-                var trayFixer = new TrayStateChanger();
-                var appDir = new DirectoryInfo(Utility.AppDirForRelease(rootAppDirectory, updateInfo.FutureReleaseEntry));
-                var allExes = appDir.GetFiles("*.exe").Select(x => x.Name).ToList();
-
-                this.ErrorIfThrows(() => trayFixer.RemoveDeadEntries(allExes, rootAppDirectory, updateInfo.FutureReleaseEntry.Version.ToString()));
                 progress(80);
 
                 unshimOurselves();
@@ -434,10 +427,8 @@ namespace Squirrel
                 }
 
                 if (!isInitialInstall || silentInstall) return;
-
-                var firstRunParam = isInitialInstall ? "--squirrel-firstrun" : "";
                 squirrelApps
-                    .Select(exe => new ProcessStartInfo(exe, firstRunParam) { WorkingDirectory = Path.GetDirectoryName(exe) })
+                    .Select(exe => new ProcessStartInfo(exe) { WorkingDirectory = Path.GetDirectoryName(exe) })
                     .ForEach(info => Process.Start(info));
             }
 
