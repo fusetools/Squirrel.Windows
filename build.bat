@@ -1,6 +1,8 @@
 @echo off
 pushd "%~dp0"
 
+.nuget\NuGet.exe restore
+
 REM VS Environment setup
 if not defined VSINSTALLDIR (
 	if defined VS140COMNTOOLS (
