@@ -1,19 +1,14 @@
-﻿#if !MONO
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 using System.Windows.Shell;
-using System.Windows.Threading;
+using Update.GUI;
 using WpfAnimatedGif;
 
 namespace Squirrel.Update
@@ -55,41 +50,40 @@ namespace Squirrel.Update
 
         public static void ShowWindow(TimeSpan initialDelay, CancellationToken token, ProgressSource progressSource)
         {
-            var wnd = default(AnimatedGifWindow);
+            /*   var wnd = default(AnimatedGifWindow);
 
-            var thread = new Thread(() => {
-                if (token.IsCancellationRequested) return;
+               var thread = new Thread(() => {
+                   if (token.IsCancellationRequested) return;
 
-                try {
-                    Task.Delay(initialDelay, token).ContinueWith(t => { return true; }).Wait();
-                } catch (Exception) {
-                    return;
-                }
+                   try {
+                       Task.Delay(initialDelay, token).ContinueWith(t => { return true; }).Wait();
+                   } catch (Exception) {
+                       return;
+                   }
 
-                wnd = new AnimatedGifWindow();
-                wnd.Show();
+                   wnd = new AnimatedGifWindow();
+                   wnd.Show();
 
-                Task.Delay(TimeSpan.FromSeconds(5.0), token).ContinueWith(t => {
-                    if (t.IsCanceled) return;
-                    wnd.Dispatcher.BeginInvoke(new Action(() => wnd.Topmost = false));
-                });
+                   Task.Delay(TimeSpan.FromSeconds(5.0), token).ContinueWith(t => {
+                       if (t.IsCanceled) return;
+                       wnd.Dispatcher.BeginInvoke(new Action(() => wnd.Topmost = false));
+                   });
 
-                token.Register(() => wnd.Dispatcher.BeginInvoke(new Action(wnd.Close)));
-                EventHandler<int> progressSourceOnProgress = ((sender, p) =>
-                    wnd.Dispatcher.BeginInvoke(
-                        new Action(() => wnd.TaskbarItemInfo.ProgressValue = p/100.0)));
-                progressSource.Progress += progressSourceOnProgress;
-                try {
-                    (new Application()).Run(wnd);
-                } finally {
-                    progressSource.Progress -= progressSourceOnProgress;
-                }
-            });
+                   token.Register(() => wnd.Dispatcher.BeginInvoke(new Action(wnd.Close)));
+                   EventHandler<int> progressSourceOnProgress = ((sender, p) =>
+                       wnd.Dispatcher.BeginInvoke(
+                           new Action(() => wnd.TaskbarItemInfo.ProgressValue = p/100.0)));
+                   progressSource.Progress += progressSourceOnProgress;
+                   try {
+                       (new Application()).Run(wnd);
+                   } finally {
+                       progressSource.Progress -= progressSourceOnProgress;
+                   }
+               });
 
-            thread.SetApartmentState(ApartmentState.STA);
-            thread.Start();
+               thread.SetApartmentState(ApartmentState.STA);
+               thread.Start();*/
+            InstallerWindow.ShowWindow(initialDelay, token).Wait(token);
         }
     }
 }
-
-#endif

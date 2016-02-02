@@ -1,21 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Mono.Options;
 using Splat;
-using Squirrel;
 using Squirrel.Json;
-using System.Drawing;
-using System.Windows;
 using NuGet;
 
 namespace Squirrel.Update
@@ -49,8 +44,7 @@ namespace Squirrel.Update
             bool isUninstalling = args.Any(x => x.Contains("uninstall"));
 
             // Uncomment to test Gifs
-            //AnimatedGifWindow.ShowWindow(TimeSpan.FromMilliseconds(0), animatedGifWindowToken.Token);
-            //Thread.Sleep(10 * 60 * 1000);
+            AnimatedGifWindow.ShowWindow(TimeSpan.FromMilliseconds(0), CancellationToken.None, new ProgressSource());
 
             using (var logger = new SetupLogLogger(isUninstalling) {Level = LogLevel.Info}) {
                 Locator.CurrentMutable.Register(() => logger, typeof (Splat.ILogger));

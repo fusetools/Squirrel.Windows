@@ -101,6 +101,10 @@
       <Project>{1436e22a-fe3c-4d68-9a85-9e74df2e6a92}</Project>
       <Name>Squirrel</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Update.GUI\Update.GUI.csproj">
+      <Project>{7d5192b0-9d4a-46bb-82cd-2455b84d7c43}</Project>
+      <Name>Update.GUI</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="signtool.exe">
