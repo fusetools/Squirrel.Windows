@@ -4,24 +4,24 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:gui="clr-namespace:Update.GUI"
+        d:DataContext="{d:DesignInstance {x:Type gui:MainWindowDesignSample}, IsDesignTimeCreatable=True}"
         mc:Ignorable="d"
         Background="#282A37"
-        ResizeMode="CanMinimize"                 
+        ResizeMode="CanMinimize"
+        WindowStartupLocation="CenterScreen"
+        Topmost="True"
         Title="Fuse Installer" Height="400" Width="500">
     <Window.Resources>
         <ResourceDictionary>
-            <Style TargetType="Grid">
-                <Style.Resources>
-                    <Style TargetType="{x:Type TextBlock}">
-                        <Setter Property="Foreground" Value="WhiteSmoke" />
-                    </Style>
-                    <Style TargetType="{x:Type TextBox}">
-                        <Setter Property="Foreground" Value="WhiteSmoke" />
-                    </Style>
-                </Style.Resources>
+            <Style TargetType="{x:Type TextBlock}">
+                <Setter Property="Foreground" Value="WhiteSmoke" />
+            </Style>
+            <Style TargetType="{x:Type TextBox}">
+                <Setter Property="Foreground" Value="WhiteSmoke" />
             </Style>
             <Style TargetType="{x:Type Button}">
                 <Setter Property="Foreground" Value="WhiteSmoke"></Setter>
+                <Setter Property="FontSize" Value="16"></Setter>
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="{x:Type Button}">
@@ -53,5 +53,5 @@
             </Style>
         </ResourceDictionary>
     </Window.Resources>
-    <gui:IntroductionView Margin="30" />
+    <ContentPresenter Margin="30" Content="{Binding InnerContent}"></ContentPresenter>
 </Window>

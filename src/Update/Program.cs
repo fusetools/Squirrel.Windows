@@ -12,12 +12,46 @@ using Mono.Options;
 using Splat;
 using Squirrel.Json;
 using NuGet;
+using Update.GUI;
 
 namespace Squirrel.Update
 {
     enum UpdateAction {
         Unset = 0, Install, Uninstall, Download, Update, Releasify, Shortcut, 
         Deshortcut, ProcessStart, UpdateSelf,
+    }
+
+    class InstallerFactory : IInstallerFactory
+    {
+        readonly Action<ProgressSource> _install;
+
+        public InstallerFactory(Action<ProgressSource> install)
+        {
+            _install = install;
+        }
+
+        public void Start(IProgress<InstallerProgress> progress)
+        {
+            var progressSource = new ProgressSource();
+            progressSource.Progress += (sender, i) => progress.Report(new InstallerProgress(i));
+            _install(progressSource);
+        }
+    }
+
+    class DummyInstallerFactory : IInstallerFactory
+    {
+        public void Start(IProgress<InstallerProgress> progress)
+        {
+            Task.Run(() =>
+            {
+                int i = 0;
+                while (i <= 100)
+                {
+                    progress.Report(new InstallerProgress(i++));
+                    Thread.Sleep(50);
+                }
+            });
+        }
     }
 
     class Program : IEnableLogger 
@@ -42,9 +76,6 @@ namespace Squirrel.Update
             // NB: Trying to delete the app directory while we have Setup.log 
             // open will actually crash the uninstaller
             bool isUninstalling = args.Any(x => x.Contains("uninstall"));
-
-            // Uncomment to test Gifs
-            AnimatedGifWindow.ShowWindow(TimeSpan.FromMilliseconds(0), CancellationToken.None, new ProgressSource());
 
             using (var logger = new SetupLogLogger(isUninstalling) {Level = LogLevel.Info}) {
                 Locator.CurrentMutable.Register(() => logger, typeof (Splat.ILogger));
@@ -136,13 +167,14 @@ namespace Squirrel.Update
                 switch (updateAction) {
 #if !MONO
                 case UpdateAction.Install:
-                    var progressSource = new ProgressSource();
-                    if (!silentInstall) { 
-                        AnimatedGifWindow.ShowWindow(TimeSpan.FromSeconds(4), animatedGifWindowToken.Token, progressSource);
+                    if (!silentInstall) {
+                        InstallerWindow.ShowWindow(animatedGifWindowToken.Token, new InstallerFactory((progressSource) =>
+                        {
+                            Install(silentInstall, progressSource, Path.GetFullPath(target)).Wait();
+                            animatedGifWindowToken.Cancel();
+                        })).Wait();
                     }
-
-                    Install(silentInstall, progressSource, Path.GetFullPath(target)).Wait();
-                    animatedGifWindowToken.Cancel();
+                    
                     break;
                 case UpdateAction.Uninstall:
                     Uninstall().Wait();

@@ -7,17 +7,17 @@ namespace Update.GUI
 {
     public class InstallerWindow
     {
-        public static async Task ShowWindow(TimeSpan initialDelay, CancellationToken token)
+        public static async Task ShowWindow(CancellationToken token, IInstallerFactory factory)
         {
             var tcs = new TaskCompletionSource<object>();
             var thread = new Thread(() => 
             {
                 try
                 {
-                    var installerWindow = new MainWindow();
-                    (new Application()).Run(installerWindow);          
+                    var installerWindow = new MainWindow(factory, token);
+                    (new Application()).Run(installerWindow);    
                 }
-                finally 
+                finally
                 {
                     tcs.TrySetResult(new object());
                 }                

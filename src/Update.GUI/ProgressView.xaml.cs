@@ -20,9 +20,23 @@ namespace Update.GUI
     /// </summary>
     public partial class ProgressView : UserControl
     {
+        public event EventHandler OnCancel;
+        public readonly Progress<InstallerProgress> Progress;
+
+        void OnProgress(InstallerProgress installerProgress)
+        {
+            ProgressBar.Value = installerProgress.Percentage;
+        }
+
         public ProgressView()
         {
             InitializeComponent();
+            Progress = new Progress<InstallerProgress>(OnProgress);
+        }
+
+        void CancelClicked(object sender, RoutedEventArgs e)
+        {
+            OnCancel?.Invoke(sender, e);
         }
     }
 }
