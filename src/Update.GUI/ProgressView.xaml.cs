@@ -25,7 +25,7 @@ namespace Update.GUI
 
         void OnProgress(InstallerProgress installerProgress)
         {
-            ProgressBar.Value = installerProgress.Percentage;
+            ProgressBar.Dispatcher.InvokeAsync(() => ProgressBar.Value = installerProgress.Percentage);
         }
 
         public ProgressView()

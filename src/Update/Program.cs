@@ -32,9 +32,17 @@ namespace Squirrel.Update
 
         public void Start(IProgress<InstallerProgress> progress)
         {
-            var progressSource = new ProgressSource();
-            progressSource.Progress += (sender, i) => progress.Report(new InstallerProgress(i));
-            _install(progressSource);
+            var t = new Thread(() =>
+            {
+                var progressSource = new ProgressSource();
+                progressSource.Progress += (sender, i) => progress.Report(new InstallerProgress(i));
+                _install(progressSource);
+            })
+            {
+                IsBackground = true
+            };
+
+            t.Start();
         }
     }
 
