@@ -28,6 +28,7 @@
     <file src="Update\bin\Release\VCRedistsInstaller.exe" target="tools\VCRedistsInstaller.exe" />
     <file src="Update\bin\Release\Update.exe" target="tools\Squirrel.exe" />
     <file src="Update\bin\Release\Update.com" target="tools\Squirrel.com" />
+    <file src="Update.GUI\bin\Release\Update.GUI.dll" target="tools\Update.GUI.dll" />
     <file src="SyncReleases\bin\Release\SyncReleases.exe" target="tools" />
     <file src="Update\signtool.exe" target="tools\signtool.exe" />
     <file src="Update\rcedit.exe" target="tools\rcedit.exe" />

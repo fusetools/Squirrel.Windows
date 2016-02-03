@@ -560,8 +560,11 @@ namespace Squirrel.Update
 
             this.Log().Info("Building embedded zip file for Setup.exe");
             using (Utility.WithTempDirectory(out tempPath, null)) {
-                this.ErrorIfThrows(() => {
+                this.ErrorIfThrows(() =>
+                {
+                    var assemblyLocation = Assembly.GetEntryAssembly().Location;
                     File.Copy(Assembly.GetEntryAssembly().Location.Replace("-Mono.exe", ".exe"), Path.Combine(tempPath, "Update.exe"));
+                    File.Copy(Path.Combine(Path.GetDirectoryName(assemblyLocation), "Update.GUI.dll"), Path.Combine(tempPath, "Update.GUI.dll"));
                     File.Copy(fullPackage, Path.Combine(tempPath, Path.GetFileName(fullPackage)));
                 }, "Failed to write package files to temp dir: " + tempPath);
 
