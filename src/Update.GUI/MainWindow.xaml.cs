@@ -39,7 +39,7 @@ namespace Update.GUI
         public MainWindow(IInstallerFactory installerFactory, CancellationToken ct)
         {
             _installerFactory = installerFactory;
-            ct.Register(() => Application.Current?.Shutdown());
+            ct.Register(() => Application.Current?.Dispatcher.InvokeAsync(() =>Application.Current?.Shutdown()));
 
             InitializeComponent();
             DataContext = this;
