@@ -9,7 +9,7 @@
     <Grid>
         <StackPanel>
             <TextBlock FontSize="25">Error</TextBlock>
-            <TextBlock Foreground="WhiteSmoke" Margin="0,20,0,0" TextWrapping="Wrap" VerticalAlignment="Center">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas ac augue rutrum, euismod augue vel, facilisis purus. In pulvinar nibh at nisi fermentum, eu pretium velit consequat. Vivamus vel varius elit.</TextBlock>
+            <TextBlock Margin="0,20,0,0" TextWrapping="Wrap" VerticalAlignment="Center">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas ac augue rutrum, euismod augue vel, facilisis purus. In pulvinar nibh at nisi fermentum, eu pretium velit consequat. Vivamus vel varius elit.</TextBlock>
         </StackPanel>
         <Grid VerticalAlignment="Bottom">
             <Button IsDefault="True" HorizontalAlignment="Right">Ok</Button>

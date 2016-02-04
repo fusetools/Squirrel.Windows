@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -14,8 +15,9 @@ namespace Update.GUI
             {
                 try
                 {
+                    var application = new Application();
                     var installerWindow = new MainWindow(factory, token);
-                    (new Application()).Run(installerWindow);    
+                    application.Run(installerWindow);    
                 }
                 finally
                 {
