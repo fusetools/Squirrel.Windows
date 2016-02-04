@@ -5,11 +5,13 @@
 
     <Color x:Key="WindowBackgroundColor">#282A37</Color>
     <Color x:Key="HighlightColor">#484A57</Color>
-    <Color x:Key="BlueColor">#FF007ACC</Color>
+    <Color x:Key="HighlightColor2">#585A67</Color>
+    <Color x:Key="BlueColor">#787A87</Color>
     <Color x:Key="ForegroundColor">#FFF4F4F5</Color>
 
     <SolidColorBrush x:Key="WindowBackgroundColorBrush" Color="{StaticResource WindowBackgroundColor}"/>
     <SolidColorBrush x:Key="HighlightColorBrush" Color="{StaticResource HighlightColor}"/>
+    <SolidColorBrush x:Key="HighlightColorBrush2" Color="{StaticResource HighlightColor2}"/>
     <SolidColorBrush x:Key="BlueColorBrush" Color="{StaticResource BlueColor}"/>
     <SolidColorBrush x:Key="ForegroundColorBrush" Color="{StaticResource ForegroundColor}"/>
 
@@ -103,7 +105,7 @@
                                     </Grid>
                                 </AdornerDecorator>
                             </Border>
-                            <Border BorderBrush="{StaticResource BlueColorBrush}" BorderThickness="1" Visibility="{Binding IsActive, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Converter={StaticResource bool2VisibilityConverter}}" />
+                            <Border BorderBrush="{StaticResource BlueColorBrush}" BorderThickness="0" Visibility="{Binding IsActive, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Converter={StaticResource bool2VisibilityConverter}}" />
                         </Grid>
                     </Border>
                     <ControlTemplate.Triggers>
@@ -139,25 +141,15 @@
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Button}">
                     <Grid>
-                        <Border Name="BorderPressed"  Background="#404251" Opacity="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                        <Border Name="BorderPressed" Background="{StaticResource HighlightColorBrush}" Opacity="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
                         <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center" Margin="25, 15, 25, 15" x:Name="MainContent" />
                     </Grid>
                     <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="BorderPressed" Property="Background" Value="{StaticResource HighlightColorBrush2}" />
+                        </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Trigger.EnterActions>
-                                <BeginStoryboard>
-                                    <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetName="BorderPressed" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.1"/>
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </Trigger.EnterActions>
-                            <Trigger.ExitActions>
-                                <BeginStoryboard>
-                                    <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetName="BorderPressed" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.1"/>
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </Trigger.ExitActions>
+                            <Setter TargetName="BorderPressed" Property="Background" Value="{StaticResource BlueColorBrush}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
