@@ -84,7 +84,8 @@ namespace Squirrel
             var applyReleases = new ApplyReleasesImpl(rootAppDirectory);
             await acquireUpdateLock();
 
-            await applyReleases.ApplyReleases(updateInfo, silentInstall, true, (p) => progress(currentProgress + (p - currentProgress)));
+            var ratio = 1.0 - (currentProgress / 100.0);
+            await applyReleases.ApplyReleases(updateInfo, silentInstall, true, (p) => progress(currentProgress + (int)(p * ratio)));
         }
 
         int InstallRedists()

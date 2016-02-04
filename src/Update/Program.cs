@@ -573,6 +573,7 @@ namespace Squirrel.Update
                     var assemblyLocation = Assembly.GetEntryAssembly().Location;
                     File.Copy(Assembly.GetEntryAssembly().Location.Replace("-Mono.exe", ".exe"), Path.Combine(tempPath, "Update.exe"));
                     File.Copy(Path.Combine(Path.GetDirectoryName(assemblyLocation), "Update.GUI.dll"), Path.Combine(tempPath, "Update.GUI.dll"));
+                    File.Copy(Path.Combine(Path.GetDirectoryName(assemblyLocation), "VCRedistsInstaller.exe"), Path.Combine(tempPath, "VCRedistsInstaller.exe"));
                     File.Copy(fullPackage, Path.Combine(tempPath, Path.GetFileName(fullPackage)));
                 }, "Failed to write package files to temp dir: " + tempPath);
 
