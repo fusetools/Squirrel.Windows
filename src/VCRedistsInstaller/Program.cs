@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Security.Principal;
 
@@ -21,14 +22,19 @@ namespace VCRedistsInstaller
             var installers = new IInstaller[]
             {
                 new InstallVCRedist2010_x86(),
-                new InstallVCRedist2010_x64(),
-
-                new InstallVCRedists2012_x86(), 
-                new InstallVCRedists2012_x64(), 
-
+                new InstallVCRedists2012_x86(),
                 new InstallVCRedists2013_x86(), 
-                new InstallVCRedists2013_x64(), 
             };
+
+            var installers64Bit = new IInstaller[]
+            {
+                new InstallVCRedist2010_x64(),
+                new InstallVCRedists2012_x64(),
+                new InstallVCRedists2013_x64()
+            };
+
+            if (IntPtr.Size == 8)
+                installers = installers.Concat(installers64Bit).ToArray();
 
             try
             {
@@ -65,7 +71,6 @@ namespace VCRedistsInstaller
 
         static void EvaluateOurself(string logOutLocation)
         {
-            Console.WriteLine(logOutLocation);
             var proc = new ProcessStartInfo
             {
                 WindowStyle = ProcessWindowStyle.Hidden,

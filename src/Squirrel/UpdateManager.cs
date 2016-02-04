@@ -75,13 +75,41 @@ namespace Squirrel
 
         public async Task FullInstall(bool silentInstall = false, Action<int> progress = null)
         {
+            var currentProgress = InstallRedists();
+            progress(currentProgress);
+
             var updateInfo = await CheckForUpdate();
             await DownloadReleases(updateInfo.ReleasesToApply);
 
             var applyReleases = new ApplyReleasesImpl(rootAppDirectory);
             await acquireUpdateLock();
 
-            await applyReleases.ApplyReleases(updateInfo, silentInstall, true, progress);
+            await applyReleases.ApplyReleases(updateInfo, silentInstall, true, (p) => progress(currentProgress + (p - currentProgress)));
+        }
+
+        int InstallRedists()
+        {
+            var assemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var p = Process.Start(new ProcessStartInfo(Path.Combine(assemblyLocation, "VCRedistsInstaller.exe"))
+            {
+                CreateNoWindow = true,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true
+            });
+
+            if(p == null)
+                throw new Exception("Failed to start VC redist installer");
+
+            var output = p.StandardOutput.ReadToEnd();
+            var error = p.StandardError.ReadToEnd();
+
+            p.WaitForExit();
+
+            if(p.ExitCode != 0)
+                throw new Exception("Failed to install VC redists");
+
+            return 30;
         }
 
         public async Task FullUninstall()

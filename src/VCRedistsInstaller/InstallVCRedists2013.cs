@@ -27,11 +27,9 @@ namespace VCRedistsInstaller
         {
             var arguments = new List<string>()
             {
-                "/norestart",
-                "/passive"
+                "/norestart"
             };
-            if (silent)
-                arguments.Add("/quiet");
+            arguments.Add(silent ? "/quiet" : "/passive");
 
             DownloadAndRun.Do(_downloadLocation, "VCRedist2013_x86", arguments, progress).Wait();
 
@@ -60,11 +58,9 @@ namespace VCRedistsInstaller
         {
             var arguments = new List<string>()
             {
-                "/norestart",
-                "/passive"
+                "/norestart"
             };
-            if (silent)
-                arguments.Add("/quiet");
+            arguments.Add(silent ? "/quiet" : "/passive");
 
             DownloadAndRun.Do(_downloadLocation, "VCRedist2013_x64", arguments, progress).Wait();
 
