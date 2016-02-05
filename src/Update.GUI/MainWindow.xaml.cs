@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace Update.GUI
@@ -11,7 +12,7 @@ namespace Update.GUI
 
         public MainWindowDesignSample()
         {
-            InnerContent = new ErrorView();
+            InnerContent = new ErrorView(new Exception("Foo"), () => {});
         }
     }
 
@@ -27,7 +28,7 @@ namespace Update.GUI
 
     public interface IInstallerFactory
     {
-        void Start(IProgress<InstallerProgress> progress);
+        Task Start(IProgress<InstallerProgress> progress);
     }
 
     /// <summary>
@@ -40,7 +41,7 @@ namespace Update.GUI
         public MainWindow(IInstallerFactory installerFactory, CancellationToken ct)
         {
             _installerFactory = installerFactory;
-            ct.Register(() => Application.Current?.Dispatcher.InvokeAsync(() =>Application.Current?.Shutdown()));
+            ct.Register(Exit);
 
             InitializeComponent();
             DataContext = this;
@@ -54,18 +55,38 @@ namespace Update.GUI
 
             introductionView.OnCancel += (sender, args) =>
             {
-                Application.Current.Shutdown();
+                Exit();
             };            
 
             InnerContent = introductionView;
         }
 
-        static ProgressView StartInstallation(IInstallerFactory installerFactory)
+        ProgressView StartInstallation(IInstallerFactory installerFactory)
         {            
             var p = new ProgressView();
-            installerFactory.Start(p.Progress);
+            installerFactory
+                .Start(p.Progress)
+                .ContinueWith(t =>
+            {
+                if (t.IsFaulted || t.IsCanceled)
+                {
+                    Dispatcher.Invoke(() =>
+                    {
+                        InnerContent = new ErrorView(
+                            t.IsCanceled 
+                            ? new TaskCanceledException("Installation was canceled") 
+                            : (Exception)t.Exception,
+                            Exit);
+                    });
+                }
+            });
             p.OnCancel += (o, eventArgs) => Application.Current.Shutdown();
             return p;
+        }
+
+        void Exit()
+        {
+            Application.Current?.Dispatcher.Invoke(() => Application.Current?.Shutdown());
         }
 
         public static readonly DependencyProperty InnerContentProperty = DependencyProperty.Register(

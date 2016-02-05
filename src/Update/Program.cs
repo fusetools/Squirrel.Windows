@@ -30,27 +30,22 @@ namespace Squirrel.Update
             _install = install;
         }
 
-        public void Start(IProgress<InstallerProgress> progress)
+        public async Task Start(IProgress<InstallerProgress> progress)
         {
-            var t = new Thread(() =>
-            {
+            await Task.Run(() =>
+            {               
                 var progressSource = new ProgressSource();
                 progressSource.Progress += (sender, i) => progress.Report(new InstallerProgress(i));
                 _install(progressSource);
-            })
-            {
-                IsBackground = true
-            };
-
-            t.Start();
+            });
         }
     }
 
     class DummyInstallerFactory : IInstallerFactory
     {
-        public void Start(IProgress<InstallerProgress> progress)
+        public async Task Start(IProgress<InstallerProgress> progress)
         {
-            Task.Run(() =>
+            await Task.Run(() =>
             {
                 int i = 0;
                 while (i <= 100)

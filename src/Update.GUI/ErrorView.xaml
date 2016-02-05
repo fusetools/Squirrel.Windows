@@ -9,10 +9,12 @@
     <Grid>
         <StackPanel>
             <TextBlock FontSize="25">Error</TextBlock>
-            <TextBlock Margin="0,20,0,0" TextWrapping="Wrap" VerticalAlignment="Center">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas ac augue rutrum, euismod augue vel, facilisis purus. In pulvinar nibh at nisi fermentum, eu pretium velit consequat. Vivamus vel varius elit.</TextBlock>
+            <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="150">
+            <TextBlock Margin="0,20,0,0" TextWrapping="Wrap" Name="ErrorMessage" VerticalAlignment="Center">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas ac augue rutrum, euismod augue vel, facilisis purus. In pulvinar nibh at nisi fermentum, eu pretium velit consequat. Vivamus vel varius elit.</TextBlock>
+            </ScrollViewer>
         </StackPanel>
         <Grid VerticalAlignment="Bottom">
-            <Button IsDefault="True" HorizontalAlignment="Right">Ok</Button>
+            <Button IsDefault="True" HorizontalAlignment="Right" Click="OkClicked">Ok</Button>
         </Grid>
     </Grid>
 </UserControl>
