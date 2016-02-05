@@ -28,9 +28,7 @@ namespace VCRedistsInstaller
             };
             arguments.Add(silent ? "/q" : "/passive");
 
-            DownloadAndRun.Do(_downloadLocation, "VCRedist2012_x86", arguments, progress).Wait();
-
-            // We should probably expect the exit code, to check for restart requirement.
+            DownloadAndRun.Do(_downloadLocation, "VCRedist2012_x86", arguments, progress);            
         }
     }
 
@@ -59,9 +57,7 @@ namespace VCRedistsInstaller
             };
             arguments.Add(silent ? "/q" : "/passive");
 
-            DownloadAndRun.Do(_downloadLocation, "VCRedist2012_x64", arguments, progress).Wait();
-
-            // We should probably expect the exit code, to check for restart requirement.
+            DownloadAndRun.Do(_downloadLocation, "VCRedist2012_x64", arguments, progress);       
         }
     }
 }

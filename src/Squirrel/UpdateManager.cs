@@ -102,8 +102,10 @@ namespace Squirrel
             if(p == null)
                 throw new Exception("Failed to start VC redist installer");
 
-            var output = p.StandardOutput.ReadToEnd();
-            var error = p.StandardError.ReadToEnd();
+            var outTask = Task.Run(() => p.StandardOutput.ReadToEnd());
+            var errTask = Task.Run(() => p.StandardError.ReadToEnd());
+
+            Task.WaitAll(outTask, errTask);
 
             p.WaitForExit();
 

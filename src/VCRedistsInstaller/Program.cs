@@ -58,6 +58,10 @@ namespace VCRedistsInstaller
                     }
                 }
             }
+            catch (ExitWithCode e)
+            {
+                Environment.Exit(e.ExitCode);
+            }
             catch (Exception e)
             {
                 Console.Error.WriteLine(e.ToString());
@@ -89,6 +93,9 @@ namespace VCRedistsInstaller
                 p.WaitForExit();
 
                 Console.Write(File.ReadAllText(logOutLocation));
+                if(p.ExitCode != 0)
+                    throw new ExitWithCode(p.ExitCode);
+
             }
             catch (Exception)
             {

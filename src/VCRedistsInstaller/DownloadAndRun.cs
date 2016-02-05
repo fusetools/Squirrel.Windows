@@ -9,7 +9,7 @@ namespace VCRedistsInstaller
 {
     class DownloadAndRun
     {
-        public static async Task<int> Do(Uri applicationLocation, string name, IEnumerable<string> arguments, IProgress<RedistInstallationProgressEvent> progress)
+        public static void Do(Uri applicationLocation, string name, IEnumerable<string> arguments, IProgress<RedistInstallationProgressEvent> progress)
         {
             var downloadExpectedPercentOfTotal = 0.7;
 
@@ -33,7 +33,7 @@ namespace VCRedistsInstaller
                 };
 
                 webClient.DownloadFileAsync(applicationLocation, tempExeLocation);
-                await threadResult.Task;
+                threadResult.Task.Wait(TimeSpan.FromMinutes(5));
             }
 
             var startInfo = new ProcessStartInfo(tempExeLocation, string.Join(" ", arguments))
@@ -49,7 +49,8 @@ namespace VCRedistsInstaller
             process.WaitForExit();
             progress.ReportProgress(100);
 
-            return await Task.FromResult(process.ExitCode);
+            if(process.ExitCode != 0)
+                throw new ExitWithCode(process.ExitCode);
         }
     }
 }
