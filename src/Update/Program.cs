@@ -248,6 +248,10 @@ namespace Squirrel.Update
                 this.ErrorIfThrows(() => File.Copy(Assembly.GetExecutingAssembly().Location, updateTarget, true),
                     "Failed to copy Update.exe to " + updateTarget);
 
+                var updateDep = "Update.GUI.dll";
+                this.ErrorIfThrows(() => File.Copy(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), updateDep), Path.Combine(mgr.RootAppDirectory, updateDep), true),
+                    "Failed to copy " + updateDep + " to " + updateTarget);
+
                 await mgr.FullInstall(silentInstall, progressSource.Raise);
 
                 await this.ErrorIfThrows(() => mgr.CreateUninstallerRegistryEntry(),
