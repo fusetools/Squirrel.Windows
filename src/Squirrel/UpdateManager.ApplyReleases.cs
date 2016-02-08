@@ -410,21 +410,7 @@ namespace Squirrel
                     }
                 }, 1 /* at a time */);
 
-                // If this is the first run, we run the apps with first-run and 
-                // *don't* wait for them, since they're probably the main EXE
-                if (squirrelApps.Count == 0) {
-                    this.Log().Warn("No apps are marked as Squirrel-aware! Going to run them all");
-
-                    squirrelApps = targetDir.EnumerateFiles()
-                        .Where(x => x.Name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
-                        .Where(x => !x.Name.StartsWith("squirrel.", StringComparison.OrdinalIgnoreCase))
-                        .Select(x => x.FullName)
-                        .ToList();
-
-                    // Create shortcuts for apps automatically if they didn't
-                    // create any Squirrel-aware apps
-                    squirrelApps.ForEach(x => CreateShortcutsForExecutable(Path.GetFileName(x), ShortcutLocation.Desktop | ShortcutLocation.StartMenu, isInitialInstall == false, null, null));
-                }
+                squirrelApps.ForEach(x => CreateShortcutsForExecutable(Path.GetFileName(x), ShortcutLocation.StartMenu, isInitialInstall == false, null, null));
 
                 if (!isInitialInstall || silentInstall) return;
                 squirrelApps
@@ -681,11 +667,11 @@ namespace Squirrel
 
             string linkTargetForVersionInfo(ShortcutLocation location, IPackage package, FileVersionInfo versionInfo)
             {
-                var possibleProductNames = new[] {
-                    versionInfo.ProductName,
-                    package.Title,
+                var possibleProductNames = new[] {                    
+                    Path.GetFileNameWithoutExtension(versionInfo.FileName),
+                    versionInfo.ProductName,                    
                     versionInfo.FileDescription,
-                    Path.GetFileNameWithoutExtension(versionInfo.FileName)
+                    package.Title,
                 };
 
                 var possibleCompanyNames = new[] {
