@@ -170,13 +170,21 @@ namespace Squirrel.Update
                 switch (updateAction) {
 #if !MONO
                 case UpdateAction.Install:
-                    if (!silentInstall) {
-                        InstallerWindow.ShowWindow(animatedGifWindowToken.Token, new InstallerFactory((progressSource) =>
+                        if (!silentInstall)
                         {
-                            Install(silentInstall, progressSource, Path.GetFullPath(target)).Wait();
-                            animatedGifWindowToken.Cancel();
-                        })).Wait();
-                    }
+                            InstallerWindow.ShowWindow(animatedGifWindowToken.Token,
+                                                       new InstallerFactory((progressSource) =>
+                                                       {
+                                                           Install(silentInstall,
+                                                                   progressSource,
+                                                                   Path.GetFullPath(target)).Wait();
+                                                           animatedGifWindowToken.Cancel();
+                                                       })).Wait();
+                        }
+                        else
+                        {
+                            Install(silentInstall, new ProgressSource(), Path.GetFullPath(target)).Wait();
+                        }
                     
                     break;
                 case UpdateAction.Uninstall:
