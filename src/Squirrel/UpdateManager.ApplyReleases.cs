@@ -32,7 +32,7 @@ namespace Squirrel
             public async Task<string> ApplyReleases(UpdateInfo updateInfo, bool silentInstall, bool attemptingFullInstall, Action<int> progress = null)
             {
                 progress = progress ?? (_ => { });
-
+                
                 var release = await createFullPackagesFromDeltas(updateInfo.ReleasesToApply, updateInfo.CurrentlyInstalledVersion);
                 progress(10);
 
@@ -68,12 +68,8 @@ namespace Squirrel
                 unshimOurselves();
                 progress(85);
 
-                if (attemptingFullInstall)
-                {
-                    var currentPath = Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.User);
-                    if(!currentPath.Contains(rootAppDirectory))
-                        Environment.SetEnvironmentVariable("PATH", currentPath + ";" + rootAppDirectory, EnvironmentVariableTarget.User);
-                }
+                var target = getDirectoryForRelease(release.Version);
+                AddAppToPath(target);
 
                 try {
                     var currentVersion = updateInfo.CurrentlyInstalledVersion != null ?
@@ -86,6 +82,23 @@ namespace Squirrel
                 progress(100);
 
                 return ret;
+            }
+
+            void AddAppToPath(DirectoryInfo target)
+            {
+                var currentPath = Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.User);
+                if (currentPath != null && currentPath.Contains(rootAppDirectory))
+                {
+                    var startIdx = currentPath.IndexOf(rootAppDirectory, StringComparison.InvariantCultureIgnoreCase);
+                    if (startIdx >= 0)
+                    {
+                        var endIdx = currentPath.IndexOf(';', startIdx);
+                        endIdx = endIdx >= 0 ? endIdx : currentPath.Length;
+                        currentPath = currentPath.Remove(startIdx, endIdx - startIdx);
+                    }
+                }
+
+                Environment.SetEnvironmentVariable("PATH", currentPath + ";" + target.FullName, EnvironmentVariableTarget.User);
             }
 
             public async Task FullUninstall()
