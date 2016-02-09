@@ -1,8 +1,10 @@
 ﻿using System;
-using System.Reflection;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using Microsoft.Win32;
 
 namespace Update.GUI
 {
@@ -55,8 +57,8 @@ namespace Update.GUI
 
             introductionView.OnCancel += (sender, args) =>
             {
-                Exit();
-            };            
+                Cancel();
+            };
 
             InnerContent = introductionView;
         }
@@ -82,6 +84,11 @@ namespace Update.GUI
             });
             p.OnCancel += (o, eventArgs) => Application.Current.Shutdown();
             return p;
+        }
+
+        void Cancel()
+        {
+            Exit();    
         }
 
         void Exit()
