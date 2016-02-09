@@ -68,6 +68,13 @@ namespace Squirrel
                 unshimOurselves();
                 progress(85);
 
+                if (attemptingFullInstall)
+                {
+                    var currentPath = Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.User);
+                    if(!currentPath.Contains(rootAppDirectory))
+                        Environment.SetEnvironmentVariable("PATH", currentPath + ";" + rootAppDirectory, EnvironmentVariableTarget.User);
+                }
+
                 try {
                     var currentVersion = updateInfo.CurrentlyInstalledVersion != null ?
                         updateInfo.CurrentlyInstalledVersion.Version : null;
