@@ -138,7 +138,7 @@ namespace Squirrel.Update
                     { "removeShortcut=", "Remove a shortcut for the given executable name", v => { updateAction = UpdateAction.Deshortcut; target = v; } },
                     { "updateSelf=", "Copy the currently executing Update.exe into the default location", v => { updateAction =  UpdateAction.UpdateSelf; target = v; } },
                     { "processStart=", "Start an executable in the latest version of the app package", v => { updateAction =  UpdateAction.ProcessStart; processStart = v; }, true},
-                    { "processStartAndWait=", "Start an executable in the latest version of the app package", v => { updateAction =  UpdateAction.ProcessStart; processStart = v; shouldWait = true; }, true},
+                    { "processStartHideAndWait=", "Start an executable in the latest version of the app package", v => { updateAction =  UpdateAction.ProcessStart; processStart = v; shouldWait = true; }, true},
                     "",
                     "Options:",
                     { "h|?|help", "Display Help and exit", _ => {} },
@@ -241,6 +241,22 @@ namespace Squirrel.Update
                 this.Log().Info("About to install to: " + mgr.RootAppDirectory);
                 if (Directory.Exists(mgr.RootAppDirectory)) {
                     this.Log().Warn("Install path {0} already exists, burning it to the ground", mgr.RootAppDirectory);
+                    this.Log().Warn("Attempting to kill all instances of Fuse");
+                    try
+                    {
+                        var p = Process.Start(new ProcessStartInfo(Path.Combine(mgr.RootAppDirectory, "Update.exe"), "--processStartHideAndWait=Fuse.exe -a=" + "kill-all")
+                        {
+                            CreateNoWindow = true,
+                            WindowStyle = ProcessWindowStyle.Hidden
+                        });
+
+                        p?.WaitForExit(10000);
+                        Thread.Sleep(TimeSpan.FromSeconds(5));
+                    }
+                    catch (Exception e)
+                    {
+                        this.Log().WarnException("Tried to kill all Fuse instances, however failed to do so. Tried to run: " + Path.Combine(mgr.RootAppDirectory, "Update.exe"), e);
+                    }                    
 
                     await this.ErrorIfThrows(() => Utility.DeleteDirectory(mgr.RootAppDirectory),
                         "Failed to remove existing directory on full install, is the app still running???");
@@ -533,11 +549,17 @@ namespace Squirrel.Update
                 throw new ArgumentException();
             }
 
-            if (shouldWait) waitForParentToExit();
-
             try {
                 this.Log().Info("About to launch: '{0}': {1}", targetExe.FullName, arguments ?? "");
-                Process.Start(new ProcessStartInfo(targetExe.FullName, arguments ?? "") { WorkingDirectory = Path.GetDirectoryName(targetExe.FullName) });
+                var p = Process.Start(new ProcessStartInfo(targetExe.FullName, arguments ?? "")
+                {
+                    CreateNoWindow = shouldWait ? true : false,
+                    WindowStyle = shouldWait ? ProcessWindowStyle.Hidden : ProcessWindowStyle.Normal,
+                    WorkingDirectory = Path.GetDirectoryName(targetExe.FullName)
+                });
+
+                if(shouldWait)
+                    p.WaitForExit();
             } catch (Exception ex) {
                 this.Log().ErrorException("Failed to start process", ex);
             }
