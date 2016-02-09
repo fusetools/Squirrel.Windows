@@ -42,7 +42,7 @@ namespace Squirrel.Tests
                 ReleaseEntry.WriteReleaseFile(pkgs, Path.Combine(remotePkgDir, "RELEASES"));
 
                 using (var fixture = new UpdateManager(remotePkgDir, "theApp", tempDir)) {
-                    await fixture.FullInstall();
+                    await fixture.FullInstall(false, (i) => {});
 
                     // NB: We execute the Squirrel-aware apps, so we need to give
                     // them a minute to settle or else the using statement will
@@ -71,7 +71,7 @@ namespace Squirrel.Tests
                 ReleaseEntry.WriteReleaseFile(pkgs, Path.Combine(remotePkgDir, "RELEASES"));
 
                 using (var fixture = new UpdateManager(remotePkgDir, "theApp", tempDir)) {
-                    await fixture.FullInstall();
+                    await fixture.FullInstall(false, (i) => { });
                 }
 
                 await Task.Delay(1000);
@@ -107,7 +107,7 @@ namespace Squirrel.Tests
                 ReleaseEntry.WriteReleaseFile(pkgs, Path.Combine(remotePkgDir, "RELEASES"));
 
                 using (var fixture = new UpdateManager(remotePkgDir, "theApp", tempDir)) {
-                    await fixture.FullInstall();
+                    await fixture.FullInstall(false, (i) => { });
                 }
 
                 await Task.Delay(1000);
@@ -144,7 +144,7 @@ namespace Squirrel.Tests
                 ReleaseEntry.WriteReleaseFile(pkgs, Path.Combine(remotePkgDir, "RELEASES"));
 
                 using (var fixture = new UpdateManager(remotePkgDir, "theApp", tempDir)) {
-                    await fixture.FullInstall();
+                    await fixture.FullInstall(false, (i) => { });
                 }
 
                 await Task.Delay(1000);
@@ -455,7 +455,7 @@ namespace Squirrel.Tests
                 using (Utility.WithTempDirectory(out remotePkgPath))
                 using (var mgr = new UpdateManager(remotePkgPath, "theApp", path)) {
                     IntegrationTestHelper.CreateFakeInstalledApp("1.0.0.1", remotePkgPath);
-                    await mgr.FullInstall();
+                    await mgr.FullInstall(false, (i) => { });
                 }
 
                 var fixture = new UpdateManager.ApplyReleasesImpl(Path.Combine(path, "theApp"));
@@ -492,7 +492,7 @@ namespace Squirrel.Tests
                 using (Utility.WithTempDirectory(out remotePkgPath))
                 using (var mgr = new UpdateManager(remotePkgPath, "theApp", path)) {
                     IntegrationTestHelper.CreateFakeInstalledApp("1.0.0.1", remotePkgPath);
-                    await mgr.FullInstall();
+                    await mgr.FullInstall(false, (i) => { });
                 }
 
                 var fixture = new UpdateManager.ApplyReleasesImpl(Path.Combine(path, "theApp"));

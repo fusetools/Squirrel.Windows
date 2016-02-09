@@ -73,7 +73,7 @@ namespace Squirrel
             return await applyReleases.ApplyReleases(updateInfo, false, false, progress);
         }
 
-        public async Task FullInstall(bool silentInstall = false, Action<int> progress = null)
+        public async Task FullInstall(bool silentInstall, Action<int> progress)
         {
             var partialProgress = new Action<int, int, int>((p, offset, ofTotalProgress) =>
             {
