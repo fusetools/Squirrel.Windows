@@ -75,8 +75,18 @@ namespace Squirrel
 
         public async Task FullInstall(bool silentInstall = false, Action<int> progress = null)
         {
-            var currentProgress = InstallRedists();
-            progress(currentProgress);
+            var currentProgress = 0;
+            var partialProgress = new Action<int, int>((p, ofTotalProgress) =>
+            {
+                currentProgress += (int) ((double)p * (double)ofTotalProgress / 100.0);
+                progress(currentProgress);
+            });
+
+            UninstallOldInstallerIfFound();
+            partialProgress(100, 15);
+
+            InstallRedists();
+            partialProgress(100, 15);
 
             var updateInfo = await CheckForUpdate();
             await DownloadReleases(updateInfo.ReleasesToApply);
@@ -84,11 +94,65 @@ namespace Squirrel
             var applyReleases = new ApplyReleasesImpl(rootAppDirectory);
             await acquireUpdateLock();
 
-            var ratio = 1.0 - (currentProgress / 100.0);
-            await applyReleases.ApplyReleases(updateInfo, silentInstall, true, (p) => progress(currentProgress + (int)(p * ratio)));
+            await applyReleases.ApplyReleases(updateInfo, silentInstall, true, (p) => partialProgress(p, 70));
         }
 
-        int InstallRedists()
+        void UninstallOldInstallerIfFound()
+        {
+            var uninstallCommand = GetQuietUninstallStringForOldInstaller().FirstOrDefault();
+            if (uninstallCommand == null)
+                return;
+
+            var p = Process.Start(new ProcessStartInfo("cmd.exe", "/C " + "\"" + uninstallCommand + "\"")
+            {
+                WindowStyle = ProcessWindowStyle.Hidden,
+                Verb = "runas"
+            });
+
+            p.WaitForExit();
+            if (p.ExitCode != 0)
+            {
+                throw new Exception("Failed to uninstall old Fuse. Please uninstall it manually.");
+            }
+        }
+
+        public IEnumerable<string> GetQuietUninstallStringForOldInstaller()
+        {
+            var registryKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall";
+            var key = Registry.LocalMachine.OpenSubKey(registryKey);
+            if (key != null)
+            {
+                foreach (var subkey in key.GetSubKeyNames().Select(keyName => key.OpenSubKey(keyName)))
+                {
+                    var upgradeCode = subkey.GetValue("BundleUpgradeCode") as IEnumerable<string>;
+                    if (upgradeCode != null && Guid.Parse(upgradeCode.First()) == Guid.Parse("{76896271-B971-4FBD-8775-3BE4F72CAEA5}"))
+                    {
+                        var installLocation = subkey.GetValue("QuietUninstallString") as string;
+                        yield return installLocation;
+                    }
+                }
+                key.Close();
+            }
+
+            registryKey = @"SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall";
+            key = Registry.LocalMachine.OpenSubKey(registryKey);
+            if (key != null)
+            {
+                foreach (var subkey in key.GetSubKeyNames().Select(keyName => key.OpenSubKey(keyName)))
+                {
+                    var upgradeCode = subkey.GetValue("BundleUpgradeCode") as IEnumerable<string>;
+                    if (upgradeCode != null && Guid.Parse(upgradeCode.First()) == Guid.Parse("{76896271-B971-4FBD-8775-3BE4F72CAEA5}"))
+                    {
+                        var installLocation = subkey.GetValue("QuietUninstallString") as string;
+                        yield return installLocation;
+                    }
+                }
+                key.Close();
+            }
+        }
+
+
+        void InstallRedists()
         {
             var assemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             var p = Process.Start(new ProcessStartInfo(Path.Combine(assemblyLocation, "VCRedistsInstaller.exe"))
@@ -111,8 +175,6 @@ namespace Squirrel
 
             if(p.ExitCode != 0)
                 throw new Exception("Failed to install VC redists");
-
-            return 30;
         }
 
         public async Task FullUninstall()
