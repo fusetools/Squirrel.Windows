@@ -89,6 +89,7 @@ namespace Squirrel
                 var currentPath = Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.User);
                 if (currentPath != null && currentPath.Contains(rootAppDirectory))
                 {
+                    this.Log().Info("Old Fuse installation was already in PATH");
                     var startIdx = currentPath.IndexOf(rootAppDirectory, StringComparison.InvariantCultureIgnoreCase);
                     if (startIdx >= 0)
                     {
@@ -98,6 +99,7 @@ namespace Squirrel
                     }
                 }
 
+                this.Log().Info("Add current installation of Fuse to PATH");
                 Environment.SetEnvironmentVariable("PATH", currentPath + ";" + target.FullName, EnvironmentVariableTarget.User);
             }
 
