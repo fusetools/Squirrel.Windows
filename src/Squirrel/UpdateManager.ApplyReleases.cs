@@ -46,13 +46,12 @@ namespace Squirrel
                     return getDirectoryForRelease(updateInfo.CurrentlyInstalledVersion.Version).FullName;
                 }
 
-                var ret = await this.ErrorIfThrows(() => installPackageToAppDir(updateInfo, release), 
+                var ret = await this.ErrorIfThrows(() => installPackageToAppDir(updateInfo, release, (p) => progress((int)((double)p * 50.0 / 100.0))), 
                     "Failed to install package to app dir");
-                progress(30);
 
                 var currentReleases = await this.ErrorIfThrows(() => updateLocalReleasesFile(),
                     "Failed to update local releases file");
-                progress(50);
+                progress(60);
 
                 var newVersion = currentReleases.MaxBy(x => x.Version).First().Version;
                 executeSelfUpdate(newVersion);
@@ -274,24 +273,68 @@ namespace Squirrel
                 fixPinnedExecutables(zf.Version);
             }
 
-            Task<string> installPackageToAppDir(UpdateInfo updateInfo, ReleaseEntry release)
+            Task<string> installPackageToAppDir(UpdateInfo updateInfo, ReleaseEntry release, Action<int> progress)
             {
-                return Task.Run(async () => {
-                    var zipper = new FastZip();
+                return Task.Run(async () => 
+                {
                     var target = getDirectoryForRelease(release.Version);
 
                     // NB: This might happen if we got killed partially through applying the release
-                    if (target.Exists) {
+                    if (target.Exists)
+                    {
                         this.Log().Warn("Found partially applied release folder, killing it: " + target.FullName);
                         await Utility.DeleteDirectory(target.FullName);
                     }
 
                     target.Create();
 
+                    var totalSize = GetTotalUncompressedSize(updateInfo, release);
+                    var currentExtractedSize = 0L;
+                    using (var stream = File.OpenRead(Path.Combine(updateInfo.PackageDirectory, release.Filename)))
+                    {
+                       // progress.Report(new InstallerStep("Extracting"));
+                       
+                        var zipIn = new ZipInputStream(stream);
+                        var zipEntry = zipIn.GetNextEntry();
+
+                        while (zipEntry != null)
+                        {
+                            var entryName = zipEntry.Name;
+                            var pathParts = entryName.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+                            var foundLib = false;
+                            foreach (var part in pathParts)
+                            {
+                                if (part.Equals("lib", StringComparison.InvariantCulture))
+                                {
+                                    foundLib = true;
+                                }
+                            }
+
+                            if (!foundLib)
+                            {
+                                zipEntry = zipIn.GetNextEntry();
+                                continue;
+                            }
+
+                            var buffer = new byte[4096];
+                            var fullZipToPath = Path.Combine(target.FullName, entryName.Replace('/', Path.DirectorySeparatorChar));
+                            var directoryName = zipEntry.IsFile ? Path.GetDirectoryName(fullZipToPath) : fullZipToPath;
+                            if (!string.IsNullOrEmpty(directoryName))
+                                Directory.CreateDirectory(directoryName);
+                            
+                            using (var streamWriter = File.Create(fullZipToPath))
+                            {
+                                currentExtractedSize += zipEntry.Size;
+                                StreamUtils.Copy(zipIn, streamWriter, buffer);
+                                progress((int)((double) currentExtractedSize * 100.0 / (double) totalSize));
+                            }
+
+                            zipEntry = zipIn.GetNextEntry();
+                        }
+                    }
+
                     this.Log().Info("Writing files to app directory: {0}", target.FullName);
-                    zipper.ExtractZip(
-                        Path.Combine(updateInfo.PackageDirectory, release.Filename),
-                        target.FullName, FastZip.Overwrite.Always, (o) => true, null, @"lib", true);
 
                     // Move all of the files out of the lib/ dirs in the NuGet package
                     // into our target App directory.
@@ -320,6 +363,40 @@ namespace Squirrel
                     await Utility.DeleteDirectory(libDir.FullName);
                     return target.FullName;
                 });
+            }
+
+            static long GetTotalUncompressedSize(UpdateInfo updateInfo, ReleaseEntry release)
+            {
+                long totalSize = 0;
+                using (var stream = File.OpenRead(Path.Combine(updateInfo.PackageDirectory, release.Filename)))
+                {
+                    var zipIn = new ZipInputStream(stream);
+                    var zipEntry = zipIn.GetNextEntry();
+
+                    while (zipEntry != null)
+                    {
+                        var pathParts = zipEntry.Name.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+                        var foundLib = false;
+                        foreach (var part in pathParts)
+                        {
+                            if (part.Equals("lib", StringComparison.InvariantCulture))
+                            {
+                                foundLib = true;
+                            }
+                        }
+
+                        if (!foundLib)
+                        {
+                            zipEntry = zipIn.GetNextEntry();
+                            continue;
+                        }
+
+                        totalSize += zipEntry.Size;
+                        zipEntry = zipIn.GetNextEntry();
+                    }
+                }
+                return totalSize;
             }
 
             async Task<ReleaseEntry> createFullPackagesFromDeltas(IEnumerable<ReleaseEntry> releasesToApply, ReleaseEntry currentVersion)

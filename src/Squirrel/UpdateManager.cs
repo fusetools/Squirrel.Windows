@@ -75,18 +75,16 @@ namespace Squirrel
 
         public async Task FullInstall(bool silentInstall = false, Action<int> progress = null)
         {
-            var currentProgress = 0;
-            var partialProgress = new Action<int, int>((p, ofTotalProgress) =>
+            var partialProgress = new Action<int, int, int>((p, offset, ofTotalProgress) =>
             {
-                currentProgress += (int) ((double)p * (double)ofTotalProgress / 100.0);
-                progress(currentProgress);
+                progress(offset + (int)((double)p * (double)ofTotalProgress / 100.0));
             });
 
             UninstallOldInstallerIfFound();
-            partialProgress(100, 15);
+            partialProgress(100, 0, 15);
 
             InstallRedists();
-            partialProgress(100, 15);
+            partialProgress(100, 15, 15);
 
             var updateInfo = await CheckForUpdate();
             await DownloadReleases(updateInfo.ReleasesToApply);
@@ -94,7 +92,7 @@ namespace Squirrel
             var applyReleases = new ApplyReleasesImpl(rootAppDirectory);
             await acquireUpdateLock();
 
-            await applyReleases.ApplyReleases(updateInfo, silentInstall, true, (p) => partialProgress(p, 70));
+            await applyReleases.ApplyReleases(updateInfo, silentInstall, true, (p) => partialProgress(p, 30, 70));
         }
 
         void UninstallOldInstallerIfFound()
