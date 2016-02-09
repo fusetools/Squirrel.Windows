@@ -46,7 +46,9 @@ namespace Squirrel
                     return getDirectoryForRelease(updateInfo.CurrentlyInstalledVersion.Version).FullName;
                 }
 
-                var ret = await this.ErrorIfThrows(() => installPackageToAppDir(updateInfo, release, (p) => progress((int)((double)p * 50.0 / 100.0))), 
+                var target = getDirectoryForRelease(release.Version);
+
+                var ret = await this.ErrorIfThrows(() => installPackageToAppDir(updateInfo, release, (p) => progress(10 + (int)((double)p * 45.0 / 100.0))),
                     "Failed to install package to app dir");
 
                 var currentReleases = await this.ErrorIfThrows(() => updateLocalReleasesFile(),
@@ -68,7 +70,6 @@ namespace Squirrel
                 unshimOurselves();
                 progress(85);
 
-                var target = getDirectoryForRelease(release.Version);
                 AddAppToPath(target);
 
                 try {
