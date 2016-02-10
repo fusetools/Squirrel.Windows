@@ -97,7 +97,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="fuse.png" />
+    <Resource Include="fuse_logo_low.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
