@@ -7,14 +7,18 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="2*"></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
         <StackPanel>
-            <TextBlock FontSize="25">Error</TextBlock>
+            <TextBlock FontSize="20">Error</TextBlock>
             <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="150">
             <TextBlock Margin="0,20,0,0" TextWrapping="Wrap" Name="ErrorMessage" VerticalAlignment="Center">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas ac augue rutrum, euismod augue vel, facilisis purus. In pulvinar nibh at nisi fermentum, eu pretium velit consequat. Vivamus vel varius elit.</TextBlock>
             </ScrollViewer>
         </StackPanel>
-        <Grid VerticalAlignment="Bottom">
-            <Button IsDefault="True" HorizontalAlignment="Right" Click="OkClicked">Ok</Button>
+        <Grid Grid.Row="1" VerticalAlignment="Bottom" Margin="0,20,0,20">
+            <Button IsDefault="True" HorizontalAlignment="Right" VerticalAlignment="Center" Click="OkClicked">Ok</Button>
         </Grid>
     </Grid>
 </UserControl>

@@ -13,7 +13,7 @@
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
         <Grid>
-            <TextBlock HorizontalAlignment="Center" FontSize="25" VerticalAlignment="Center">Installing Fuse</TextBlock>
+            <TextBlock HorizontalAlignment="Center" FontSize="20" VerticalAlignment="Center">Installing Fuse</TextBlock>
         </Grid>
         <ProgressBar Grid.Row="1" Name="ProgressBar" HorizontalAlignment="Stretch" Height="20"></ProgressBar>
         <Button Grid.Row="2" Click="CancelClicked" VerticalAlignment="Center" HorizontalAlignment="Center">Cancel</Button>
