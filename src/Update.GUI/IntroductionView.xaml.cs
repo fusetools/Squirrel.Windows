@@ -38,8 +38,10 @@ namespace Update.GUI
         void AgreedToLicense(object sender, RoutedEventArgs e)
         {
             var checkBox = e.Source as CheckBox;
-            if(checkBox != null && checkBox.IsChecked.HasValue)
+            if (checkBox != null && checkBox.IsChecked.HasValue)
+            {
                 InstallButton.IsEnabled = checkBox.IsChecked.Value;
+            }
             else
             {
                 e.Handled = false;
