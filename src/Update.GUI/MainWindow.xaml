@@ -10,7 +10,7 @@
         WindowStartupLocation="CenterScreen"
         Topmost="True"
         Style="{DynamicResource InstallerWindowStyle}"
-        Title="Fuse" Height="400" Width="500">
+        Title="Fuse Installer" Height="400" Width="500">
     <gui:CustomTitlebarWindow.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
