@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Navigation;
 
 namespace Update.GUI
 {
@@ -25,6 +27,19 @@ namespace Update.GUI
         void InstallClicked(object sender, RoutedEventArgs e)
         {
             OnInstall?.Invoke(sender, e);
+        }
+
+        void GotoLicensePage(object sender, RequestNavigateEventArgs e)
+        {
+            Process.Start(e.Uri.AbsoluteUri);
+            e.Handled = true;
+        }
+
+        void AgreedToLicense(object sender, RoutedEventArgs e)
+        {
+            var checkBox = ((CheckBox) e.Source);
+            if(checkBox.IsChecked.HasValue)
+                InstallButton.IsEnabled = checkBox.IsChecked.Value;
         }
     }
 }

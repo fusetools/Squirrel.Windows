@@ -17,7 +17,7 @@
             <TextBlock Margin="0,20,0,0" TextWrapping="Wrap" Name="ErrorMessage" VerticalAlignment="Center">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas ac augue rutrum, euismod augue vel, facilisis purus. In pulvinar nibh at nisi fermentum, eu pretium velit consequat. Vivamus vel varius elit.</TextBlock>
             </ScrollViewer>
         </StackPanel>
-        <Grid Grid.Row="1" VerticalAlignment="Bottom" Margin="0,20,0,20">
+        <Grid Grid.Row="1" VerticalAlignment="Bottom" Margin="0,20,0,0">
             <Button IsDefault="True" HorizontalAlignment="Right" VerticalAlignment="Center" Click="OkClicked">Ok</Button>
         </Grid>
     </Grid>

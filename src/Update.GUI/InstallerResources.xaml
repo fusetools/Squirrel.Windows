@@ -4,12 +4,14 @@
     <BooleanToVisibilityConverter x:Key="bool2VisibilityConverter" />
 
     <Color x:Key="WindowBackgroundColor">#282A37</Color>
+    <Color x:Key="HighlightColorDark">#383A44</Color>
     <Color x:Key="HighlightColor">#484A57</Color>
     <Color x:Key="HighlightColor2">#585A67</Color>
     <Color x:Key="BlueColor">#787A87</Color>
     <Color x:Key="ForegroundColor">#FFF4F4F5</Color>
 
     <SolidColorBrush x:Key="WindowBackgroundColorBrush" Color="{StaticResource WindowBackgroundColor}"/>
+    <SolidColorBrush x:Key="HighlightColorBrushDark" Color="{StaticResource HighlightColorDark}"/>
     <SolidColorBrush x:Key="HighlightColorBrush" Color="{StaticResource HighlightColor}"/>
     <SolidColorBrush x:Key="HighlightColorBrush2" Color="{StaticResource HighlightColor2}"/>
     <SolidColorBrush x:Key="BlueColorBrush" Color="{StaticResource BlueColor}"/>
@@ -152,6 +154,9 @@
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="BorderPressed" Property="Background" Value="{StaticResource BlueColorBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="BorderPressed" Property="Background" Value="{StaticResource HighlightColorBrushDark}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
