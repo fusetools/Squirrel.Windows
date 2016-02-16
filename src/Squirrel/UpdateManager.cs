@@ -46,7 +46,7 @@ namespace Squirrel
                 return;
             }
 
-            this.rootAppDirectory = Path.Combine(rootDirectory ?? GetLocalAppDataDirectory(), this.applicationName);
+            this.rootAppDirectory = Path.Combine(rootDirectory ?? GetLocalAppDataDirectory(), "Fusetools", this.applicationName, "App");
         }
 
         public async Task<UpdateInfo> CheckForUpdate(bool ignoreDeltaUpdates = false, Action<int> progress = null)
