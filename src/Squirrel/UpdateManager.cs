@@ -97,11 +97,11 @@ namespace Squirrel
 
         void UninstallOldInstallerIfFound()
         {
-            var uninstallCommand = GetQuietUninstallStringForOldInstaller().FirstOrDefault();
+            var uninstallCommand = GetUninstallStringForOldInstaller().FirstOrDefault();
             if (uninstallCommand == null)
                 return;
 
-            var p = Process.Start(new ProcessStartInfo("cmd.exe", "/C " + "\"" + uninstallCommand + "\"")
+            var p = Process.Start(new ProcessStartInfo("cmd.exe", "/C " + "\"" + uninstallCommand + "/passive" + "\"")
             {
                 WindowStyle = ProcessWindowStyle.Hidden,
                 Verb = "runas"
@@ -114,7 +114,7 @@ namespace Squirrel
             }
         }
 
-        public IEnumerable<string> GetQuietUninstallStringForOldInstaller()
+        public IEnumerable<string> GetUninstallStringForOldInstaller()
         {
             var registryKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall";
             var key = Registry.LocalMachine.OpenSubKey(registryKey);
@@ -125,7 +125,7 @@ namespace Squirrel
                     var upgradeCode = subkey.GetValue("BundleUpgradeCode") as IEnumerable<string>;
                     if (upgradeCode != null && Guid.Parse(upgradeCode.First()) == Guid.Parse("{76896271-B971-4FBD-8775-3BE4F72CAEA5}"))
                     {
-                        var installLocation = subkey.GetValue("QuietUninstallString") as string;
+                        var installLocation = subkey.GetValue("UninstallString") as string;
                         yield return installLocation;
                     }
                 }
@@ -141,7 +141,7 @@ namespace Squirrel
                     var upgradeCode = subkey.GetValue("BundleUpgradeCode") as IEnumerable<string>;
                     if (upgradeCode != null && Guid.Parse(upgradeCode.First()) == Guid.Parse("{76896271-B971-4FBD-8775-3BE4F72CAEA5}"))
                     {
-                        var installLocation = subkey.GetValue("QuietUninstallString") as string;
+                        var installLocation = subkey.GetValue("UninstallString") as string;
                         yield return installLocation;
                     }
                 }
