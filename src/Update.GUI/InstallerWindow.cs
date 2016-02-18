@@ -8,7 +8,7 @@ namespace Update.GUI
 {
     public class InstallerWindow
     {
-        public static async Task ShowWindow(CancellationToken token, IInstallerFactory factory)
+        public static async Task ShowWindow(CancellationToken token, Version version, IInstallerFactory factory)
         {
             var tcs = new TaskCompletionSource<object>();
             var thread = new Thread(() => 
@@ -16,7 +16,7 @@ namespace Update.GUI
                 try
                 {
                     var application = new Application();
-                    var installerWindow = new MainWindow(factory, token);
+                    var installerWindow = new MainWindow(factory, version, token);
                     application.Run(installerWindow);    
                 }
                 finally

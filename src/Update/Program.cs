@@ -170,20 +170,27 @@ namespace Squirrel.Update
                 switch (updateAction) {
 #if !MONO
                 case UpdateAction.Install:
+                        var sourceDirectory = Path.GetFullPath(target) ?? Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                        var releaseEntry = GetReleaseEntry(sourceDirectory);
+                        Func<ProgressSource, Task> installFunc = (progressSource) => 
+                            Install(silentInstall,
+                                    progressSource,
+                                    releaseEntry.PackageName,
+                                    Path.GetFullPath(target));
+
                         if (!silentInstall)
-                        {
+                        {                            
                             InstallerWindow.ShowWindow(animatedGifWindowToken.Token,
+                                                       releaseEntry.Version.Version,
                                                        new InstallerFactory((progressSource) =>
                                                        {
-                                                           Install(silentInstall,
-                                                                   progressSource,
-                                                                   Path.GetFullPath(target)).Wait();
+                                                           installFunc(progressSource).Wait();
                                                            animatedGifWindowToken.Cancel();
                                                        })).Wait();
                         }
                         else
                         {
-                            Install(silentInstall, new ProgressSource(), Path.GetFullPath(target)).Wait();
+                            installFunc(new ProgressSource()).Wait();
                         }
                     
                     break;
@@ -218,14 +225,12 @@ namespace Squirrel.Update
             return 0;
         }
 
-        public async Task Install(bool silentInstall, ProgressSource progressSource, string sourceDirectory = null)
-        {
-            sourceDirectory = sourceDirectory ?? Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        public ReleaseEntry GetReleaseEntry(string sourceDirectory)
+        {            
             var releasesPath = Path.Combine(sourceDirectory, "RELEASES");
 
-            this.Log().Info("Starting install, writing to {0}", sourceDirectory);
-
-            if (!File.Exists(releasesPath)) {
+            if (!File.Exists(releasesPath))
+            {
                 this.Log().Info("RELEASES doesn't exist, creating it at " + releasesPath);
                 var nupkgs = (new DirectoryInfo(sourceDirectory)).GetFiles()
                     .Where(x => x.Name.EndsWith(".nupkg", StringComparison.OrdinalIgnoreCase))
@@ -234,8 +239,13 @@ namespace Squirrel.Update
                 ReleaseEntry.WriteReleaseFile(nupkgs, releasesPath);
             }
 
-            var ourAppName = ReleaseEntry.ParseReleaseFile(File.ReadAllText(releasesPath, Encoding.UTF8))
-                .First().PackageName;
+            return ReleaseEntry.ParseReleaseFile(File.ReadAllText(releasesPath, Encoding.UTF8))
+                               .First();
+        }
+
+        public async Task Install(bool silentInstall, ProgressSource progressSource, string ourAppName, string sourceDirectory)
+        {            
+            this.Log().Info("Starting install, writing to {0}", sourceDirectory);
 
             using (var mgr = new UpdateManager(sourceDirectory, ourAppName)) {
                 this.Log().Info("About to install to: " + mgr.RootAppDirectory);

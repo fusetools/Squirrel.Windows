@@ -40,12 +40,13 @@ namespace Update.GUI
     {
         readonly IInstallerFactory _installerFactory;
 
-        public MainWindow(IInstallerFactory installerFactory, CancellationToken ct)
+        public MainWindow(IInstallerFactory installerFactory, Version version, CancellationToken ct)
         {
             _installerFactory = installerFactory;
             ct.Register(Exit);
 
             InitializeComponent();
+            Title += " " + version.ToString(3) + " beta installer";
             DataContext = this;
 
             var introductionView = new IntroductionView();
