@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Security.AccessControl;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -95,17 +96,37 @@ namespace Squirrel
             await applyReleases.ApplyReleases(updateInfo, silentInstall, true, (p) => partialProgress(p, 30, 70));
         }
 
+        [DllImport("user32.dll")]
+        public static extern IntPtr SetParent(IntPtr hWndChild, IntPtr hWndNewParent);
+
         void UninstallOldInstallerIfFound()
         {
             var uninstallCommand = GetUninstallStringForOldInstaller().FirstOrDefault();
             if (uninstallCommand == null)
                 return;
 
-            var p = Process.Start(new ProcessStartInfo("cmd.exe", "/C " + "\"" + uninstallCommand + "/passive" + "\"")
+            var parts = uninstallCommand.Split('/');
+            var exePart = parts.FirstOrDefault();
+            if (exePart == null)
+                return;
+
+            exePart = exePart.Trim().Trim('"');
+            var arguments = parts
+                .Skip(1)
+                .Select(s => "/" + s)
+                .Concat(new[] { "/passive" });
+
+            var p = Process.Start(new ProcessStartInfo()
             {
-                WindowStyle = ProcessWindowStyle.Hidden,
+                FileName = exePart,
+                Arguments = string.Join(" ", arguments),
                 Verb = "runas"
             });
+
+            if(p == null)
+                throw new Exception("Failed to start uninstaller of Fuse. Please uninstall it manually");
+
+            SetParent(p.MainWindowHandle, Process.GetCurrentProcess().MainWindowHandle);
 
             p.WaitForExit();
             if (p.ExitCode != 0)

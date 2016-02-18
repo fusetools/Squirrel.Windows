@@ -9,7 +9,7 @@
         ResizeMode="CanMinimize"
         Icon="Fuse.ico"
         WindowStartupLocation="CenterScreen"
-        Topmost="True"
+        Topmost="False"
         Style="{DynamicResource InstallerWindowStyle}"
         Title="Fuse Installer" Height="400" Width="500">
     <gui:CustomTitlebarWindow.Resources>
