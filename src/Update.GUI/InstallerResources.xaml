@@ -156,7 +156,7 @@
                             <Setter TargetName="BorderPressed" Property="Background" Value="{StaticResource BlueColorBrush}" />
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
-                            <Setter TargetName="BorderPressed" Property="Background" Value="{StaticResource HighlightColorBrushDark}" />
+                            <Setter Property="Foreground" Value="{StaticResource WindowBackgroundColorBrush}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
