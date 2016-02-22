@@ -268,6 +268,9 @@ namespace Squirrel.Update
                         this.Log().WarnException("Tried to kill all Fuse instances, however failed to do so. Tried to run: " + Path.Combine(mgr.RootAppDirectory, "Update.exe"), e);
                     }                    
 
+                    mgr.KillAllExecutablesBelongingToPackage();
+                    await Task.Delay(250);
+
                     await this.ErrorIfThrows(() => Utility.DeleteDirectory(mgr.RootAppDirectory),
                         "Failed to remove existing directory on full install, is the app still running???");
 
