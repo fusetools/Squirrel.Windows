@@ -70,8 +70,6 @@ namespace Squirrel
                 unshimOurselves();
                 progress(85);
 
-                AddAppToPath(target);
-
                 try {
                     var currentVersion = updateInfo.CurrentlyInstalledVersion != null ?
                         updateInfo.CurrentlyInstalledVersion.Version : null;
@@ -83,25 +81,6 @@ namespace Squirrel
                 progress(100);
 
                 return ret;
-            }
-
-            void AddAppToPath(DirectoryInfo target)
-            {
-                var currentPath = Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.User);
-                if (currentPath != null && currentPath.Contains(rootAppDirectory))
-                {
-                    this.Log().Info("Old Fuse installation was already in PATH");
-                    var startIdx = currentPath.IndexOf(rootAppDirectory, StringComparison.InvariantCultureIgnoreCase);
-                    if (startIdx >= 0)
-                    {
-                        var endIdx = currentPath.IndexOf(';', startIdx);
-                        endIdx = endIdx >= 0 ? endIdx : currentPath.Length;
-                        currentPath = currentPath.Remove(startIdx, endIdx - startIdx);
-                    }
-                }
-
-                this.Log().Info("Add current installation of Fuse to PATH");
-                Environment.SetEnvironmentVariable("PATH", currentPath + ";" + target.FullName, EnvironmentVariableTarget.User);
             }
 
             public async Task FullUninstall()
