@@ -170,33 +170,40 @@ namespace Squirrel.Update
                 switch (updateAction) {
 #if !MONO
                 case UpdateAction.Install:
-                        var sourceDirectory = Path.GetFullPath(target) ?? Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-                        var releaseEntry = GetReleaseEntry(sourceDirectory);
-                        Func<ProgressSource, Task> installFunc = (progressSource) => 
-                            Install(silentInstall,
-                                    progressSource,
-                                    releaseEntry.PackageName,
-                                    Path.GetFullPath(target));
+                {
+                    var sourceDirectory = Path.GetFullPath(target) ?? Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                    var releaseEntry = GetReleaseEntry(sourceDirectory);
+                    Func<ProgressSource, Task> installFunc = (progressSource) => 
+                        Install(silentInstall,
+                                progressSource,
+                                releaseEntry.PackageName,
+                                Path.GetFullPath(target));
 
-                        if (!silentInstall)
-                        {                            
-                            InstallerWindow.ShowWindow(animatedGifWindowToken.Token,
-                                                       releaseEntry.Version.Version,
-                                                       new InstallerFactory((progressSource) =>
-                                                       {
-                                                           installFunc(progressSource).Wait();
-                                                           animatedGifWindowToken.Cancel();
-                                                       })).Wait();
-                        }
-                        else
-                        {
-                            installFunc(new ProgressSource()).Wait();
-                        }
+                    if (!silentInstall)
+                    {                            
+                        InstallerWindow.ShowWindow(animatedGifWindowToken.Token,
+                                                    releaseEntry.Version.Version,
+                                                    new InstallerFactory((progressSource) =>
+                                                    {
+                                                        installFunc(progressSource).Wait();
+                                                        animatedGifWindowToken.Cancel();
+                                                    })).Wait();
+                    }
+                    else
+                    {
+                        installFunc(new ProgressSource()).Wait();
+                    }
                     
                     break;
+                }
                 case UpdateAction.Uninstall:
-                    Uninstall().Wait();
+                {
+                    var targetLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);                    
+                    var sourceDirectory = Path.GetFullPath(Path.Combine(targetLocation, "packages"));
+                    var releaseEntry = GetReleaseEntry(sourceDirectory);
+                    Uninstall(releaseEntry.PackageName, targetLocation).Wait();
                     break;
+                }                    
                 case UpdateAction.Download:
                     Console.WriteLine(Download(target).Result);
                     break;
@@ -250,23 +257,7 @@ namespace Squirrel.Update
             using (var mgr = new UpdateManager(sourceDirectory, ourAppName)) {
                 this.Log().Info("About to install to: " + mgr.RootAppDirectory);
                 if (Directory.Exists(mgr.RootAppDirectory)) {
-                    this.Log().Warn("Install path {0} already exists, burning it to the ground", mgr.RootAppDirectory);
-                    this.Log().Warn("Attempting to kill all instances of Fuse");
-                    try
-                    {
-                        var p = Process.Start(new ProcessStartInfo(Path.Combine(mgr.RootAppDirectory, "Update.exe"), "--processStartHideAndWait=Fuse.exe -a=" + "kill-all")
-                        {
-                            CreateNoWindow = true,
-                            WindowStyle = ProcessWindowStyle.Hidden
-                        });
-
-                        p?.WaitForExit(10000);
-                        Thread.Sleep(TimeSpan.FromSeconds(5));
-                    }
-                    catch (Exception e)
-                    {
-                        this.Log().WarnException("Tried to kill all Fuse instances, however failed to do so. Tried to run: " + Path.Combine(mgr.RootAppDirectory, "Update.exe"), e);
-                    }                    
+                    this.Log().Warn("Install path {0} already exists, burning it to the ground", mgr.RootAppDirectory);           
 
                     mgr.KillAllExecutablesBelongingToPackage();
                     await Task.Delay(250);
@@ -367,12 +358,12 @@ namespace Squirrel.Update
             }
         }
 
-        public async Task Uninstall(string appName = null)
+        public async Task Uninstall(string appName, string location)
         {
             this.Log().Info("Starting uninstall for app: " + appName);
 
             appName = appName ?? getAppNameFromDirectory();
-            using (var mgr = new UpdateManager("", appName)) {
+            using (var mgr = new UpdateManager("", appName, location)) {
                 await mgr.FullUninstall();
                 mgr.RemoveUninstallerRegistryEntry();
             }

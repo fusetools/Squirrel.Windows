@@ -42,12 +42,8 @@ namespace Squirrel
             this.applicationName = applicationName ?? UpdateManager.getApplicationName();
             this.urlDownloader = urlDownloader ?? new FileDownloader();
 
-            if (rootDirectory != null) {
-                this.rootAppDirectory = Path.Combine(rootDirectory, this.applicationName);
-                return;
-            }
-
-            this.rootAppDirectory = Path.Combine(rootDirectory ?? GetLocalAppDataDirectory(), "Fusetools", this.applicationName, "App");
+            this.rootAppDirectory = rootDirectory ?? Path.Combine(GetLocalAppDataDirectory(), "Fusetools", this.applicationName, "App");
+            this.Log().Info(this.rootAppDirectory);
         }
 
         public async Task<UpdateInfo> CheckForUpdate(bool ignoreDeltaUpdates = false, Action<int> progress = null)
