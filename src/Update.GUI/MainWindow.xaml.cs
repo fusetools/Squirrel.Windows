@@ -30,7 +30,7 @@ namespace Update.GUI
 
     public interface IInstallerFactory
     {
-        Task Start(IProgress<InstallerProgress> progress);
+        Task Start(IProgress<InstallerProgress> progress, CancellationToken ct);
     }
 
     /// <summary>
@@ -39,11 +39,12 @@ namespace Update.GUI
     public partial class MainWindow : CustomTitlebarWindow
     {
         readonly IInstallerFactory _installerFactory;
+        readonly Action _exit;
 
-        public MainWindow(IInstallerFactory installerFactory, Version version, CancellationToken ct)
+        public MainWindow(IInstallerFactory installerFactory, Version version, Action exit)
         {
             _installerFactory = installerFactory;
-            ct.Register(Exit);
+            _exit = exit;
 
             InitializeComponent();
             Title += " " + version.ToString(3) + " beta installer";
@@ -66,24 +67,39 @@ namespace Update.GUI
 
         ProgressView StartInstallation(IInstallerFactory installerFactory)
         {            
+            var ctSource = new CancellationTokenSource();
             var p = new ProgressView();
             installerFactory
-                .Start(p.Progress)
+                .Start(p.Progress, ctSource.Token)
                 .ContinueWith(t =>
-            {
-                if (t.IsFaulted || t.IsCanceled)
                 {
-                    Dispatcher.Invoke(() =>
+                    if (t.IsCanceled)
                     {
-                        InnerContent = new ErrorView(
-                            t.IsCanceled 
-                            ? new TaskCanceledException("Installation was canceled") 
-                            : (Exception)t.Exception,
-                            Exit);
-                    });
-                }
-            });
-            p.OnCancel += (o, eventArgs) => Application.Current.Shutdown();
+                        Exit();
+                    }
+                    if (t.IsFaulted)
+                    {
+                        if (t.Exception?.InnerException is OperationCanceledException)
+                        {
+                            Exit();
+                            return;
+                        }
+
+                        Dispatcher.Invoke(() =>
+                        {
+                            InnerContent = new ErrorView(                                
+                                t.Exception,
+                                Exit);
+                        });
+                    }
+                    else
+                    {
+                        Exit();
+                    }
+                });
+            
+            p.OnCancel += (o, eventArgs) => ctSource.Cancel();
+
             return p;
         }
 
@@ -94,7 +110,7 @@ namespace Update.GUI
 
         void Exit()
         {
-            Application.Current?.Dispatcher.Invoke(() => Application.Current?.Shutdown());
+            _exit();
         }
 
         public static readonly DependencyProperty InnerContentProperty = DependencyProperty.Register(

@@ -23,36 +23,20 @@ namespace Squirrel.Update
 
     class InstallerFactory : IInstallerFactory
     {
-        readonly Action<ProgressSource> _install;
+        readonly Action<ProgressSource, CancellationToken> _install;
 
-        public InstallerFactory(Action<ProgressSource> install)
+        public InstallerFactory(Action<ProgressSource, CancellationToken> install)
         {
             _install = install;
         }
 
-        public async Task Start(IProgress<InstallerProgress> progress)
+        public async Task Start(IProgress<InstallerProgress> progress, CancellationToken ct)
         {
             await Task.Run(() =>
             {               
                 var progressSource = new ProgressSource();
                 progressSource.Progress += (sender, i) => progress.Report(new InstallerProgress(i));
-                _install(progressSource);
-            });
-        }
-    }
-
-    class DummyInstallerFactory : IInstallerFactory
-    {
-        public async Task Start(IProgress<InstallerProgress> progress)
-        {
-            await Task.Run(() =>
-            {
-                int i = 0;
-                while (i <= 100)
-                {
-                    progress.Report(new InstallerProgress(i++));
-                    Thread.Sleep(50);
-                }
+                _install(progressSource, ct);
             });
         }
     }
@@ -181,12 +165,13 @@ namespace Squirrel.Update
 
                     if (!silentInstall)
                     {                            
-                        InstallerWindow.ShowWindow(animatedGifWindowToken.Token,
-                                                    releaseEntry.Version.Version,
-                                                    new InstallerFactory((progressSource) =>
+                        InstallerWindow.ShowWindow(releaseEntry.Version.Version,
+                                                    new InstallerFactory((progressSource, ct) =>
                                                     {
-                                                        installFunc(progressSource).Wait();
-                                                        animatedGifWindowToken.Cancel();
+                                                        installFunc(progressSource).Wait(ct);
+
+                                                        if(ct.IsCancellationRequested)
+                                                            throw new OperationCanceledException("Installation was canceled");
                                                     })).Wait();
                     }
                     else
