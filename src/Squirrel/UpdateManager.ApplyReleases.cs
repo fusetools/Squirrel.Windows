@@ -495,11 +495,17 @@ namespace Squirrel
                 }, 1 /* at a time */);
 
                 squirrelApps.ForEach(x => CreateShortcutsForExecutable(Path.GetFileName(x), ShortcutLocation.StartMenu, isInitialInstall == false, null, null));
+                
+                if (!isInitialInstall || silentInstall)
+                     return;
 
-                if (!isInitialInstall || silentInstall) return;
                 squirrelApps
-                    .Select(exe => new ProcessStartInfo(exe) { WorkingDirectory = Path.GetDirectoryName(exe) })
-                    .ForEach(info => Process.Start(info));
+                     .Select(exe => new ProcessStartInfo(exe) { WorkingDirectory = Path.GetDirectoryName(exe), Arguments = "install-to-path"})
+                     .ForEach(info => Process.Start(info).WaitForExit());
+
+                squirrelApps
+                     .Select(exe => new ProcessStartInfo(exe) { WorkingDirectory = Path.GetDirectoryName(exe)})
+                     .ForEach(info => Process.Start(info));
             }
 
             void fixPinnedExecutables(SemanticVersion newCurrentVersion, bool removeAll = false)
