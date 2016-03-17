@@ -503,9 +503,9 @@ namespace Squirrel
                      .Select(exe => new ProcessStartInfo(exe) { WorkingDirectory = Path.GetDirectoryName(exe), Arguments = "install-to-path"})
                      .ForEach(info => Process.Start(info).WaitForExit());
 
-                squirrelApps
-                     .Select(exe => new ProcessStartInfo(exe) { WorkingDirectory = Path.GetDirectoryName(exe)})
-                     .ForEach(info => Process.Start(info));
+                var fuseExe = squirrelApps.First();
+                var fuseShim = Path.Combine(Path.GetDirectoryName(Path.GetDirectoryName(fuseExe)), "Bin", "Fuse.exe");
+                Process.Start(fuseShim);
             }
 
             void fixPinnedExecutables(SemanticVersion newCurrentVersion, bool removeAll = false)
