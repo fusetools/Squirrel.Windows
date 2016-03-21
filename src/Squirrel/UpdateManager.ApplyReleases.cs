@@ -236,7 +236,7 @@ namespace Squirrel
                             IconIndex = 0,
                             WorkingDirectory = Path.GetDirectoryName(exePath),
                             Description = zf.Description,
-                            Arguments = "--processStart " + exeName,
+                            Arguments = "--processStart " + exeName + " -a=\"" + "--override-fuse-exe=\"" + Path.Combine(Path.GetDirectoryName(exePath), "..\\Bin\\Fuse.exe") + "\"\"",
                         };
 
                         if (!String.IsNullOrWhiteSpace(programArguments)) {
