@@ -110,7 +110,7 @@ namespace Squirrel
             var arguments = parts
                 .Skip(1)
                 .Select(s => "/" + s)
-                .Concat(new[] { "/passive" });
+                .Concat(new[] { "/passive", "/norestart" });
 
             var p = Process.Start(new ProcessStartInfo()
             {
