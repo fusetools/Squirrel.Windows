@@ -28,7 +28,7 @@ namespace Squirrel.Tests
                     using (Utility.WithTempDirectory(out remotePkgPath))
                     using (var mgr = new UpdateManager(remotePkgPath, "theApp", path)) {
                         IntegrationTestHelper.CreateFakeInstalledApp("1.0.0.1", remotePkgPath);
-                        await mgr.FullInstall(false, (i) => { });
+                        await mgr.FullInstall(false, new ProgressSource());
                     }
 
                     using (var mgr = new UpdateManager("http://lol", "theApp", path)) {
@@ -95,7 +95,7 @@ namespace Squirrel.Tests
                     }.ForEach(x => File.Copy(IntegrationTestHelper.GetPath("fixtures", x), Path.Combine(remotePackageDir.FullName, x)));
 
                     using (var fixture = new UpdateManager(remotePackageDir.FullName, "theApp", tempDir)) {
-                        await fixture.FullInstall(false, (i) => { });
+                        await fixture.FullInstall(false, new ProgressSource());
                     }
 
                     var releasePath = Path.Combine(localAppDir, "packages", "RELEASES");

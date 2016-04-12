@@ -30,12 +30,13 @@ namespace Squirrel.Update
             _install = install;
         }
 
-        public async Task Start(IProgress<InstallerProgress> progress, CancellationToken ct)
+        public async Task Start(IProgress<InstallerProgress> progress, Action<string> commandChanged, CancellationToken ct)
         {
             await Task.Run(() =>
             {               
                 var progressSource = new ProgressSource();
                 progressSource.Progress += (sender, i) => progress.Report(new InstallerProgress(i));
+                progressSource.Command += (sender, name) => commandChanged(name);
                 _install(progressSource, ct);
             });
         }
@@ -265,7 +266,7 @@ namespace Squirrel.Update
                 this.ErrorIfThrows(() => File.Copy(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), updateDep), Path.Combine(mgr.RootAppDirectory, updateDep), true),
                     "Failed to copy " + updateDep + " to " + updateTarget);
 
-                await mgr.FullInstall(silentInstall, progressSource.Raise);
+                await mgr.FullInstall(silentInstall, progressSource);
 
                 await this.ErrorIfThrows(() => mgr.CreateUninstallerRegistryEntry(),
                     "Failed to create uninstaller registry entry");
@@ -808,17 +809,6 @@ namespace Squirrel.Update
 
             NativeMethods.GetStdHandle(StandardHandles.STD_ERROR_HANDLE);
             NativeMethods.GetStdHandle(StandardHandles.STD_OUTPUT_HANDLE);
-        }
-    }
-
-    public class ProgressSource
-    {
-        public event EventHandler<int> Progress;
-
-        public void Raise(int i)
-        {
-            if (Progress != null)
-                Progress.Invoke(this, i);
         }
     }
 

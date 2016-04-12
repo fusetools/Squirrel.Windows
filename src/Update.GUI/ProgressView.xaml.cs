@@ -28,10 +28,15 @@ namespace Update.GUI
             ProgressBar.Dispatcher.InvokeAsync(() => ProgressBar.Value = installerProgress.Percentage);
         }
 
+        public void UpdateCommand(string command)
+        {
+            CurrentCommand.Text = command;
+        }
+
         public ProgressView()
         {
             InitializeComponent();
-            Progress = new Progress<InstallerProgress>(OnProgress);
+            Progress = new Progress<InstallerProgress>(OnProgress);            
         }
 
         void CancelClicked(object sender, RoutedEventArgs e)

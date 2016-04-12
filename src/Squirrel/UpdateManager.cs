@@ -70,18 +70,22 @@ namespace Squirrel
             return await applyReleases.ApplyReleases(updateInfo, false, false, progress);
         }
 
-        public async Task FullInstall(bool silentInstall, Action<int> progress)
+        public async Task FullInstall(bool silentInstall, ProgressSource progress)
         {
             var partialProgress = new Action<int, int, int>((p, offset, ofTotalProgress) =>
             {
-                progress(offset + (int)((double)p * (double)ofTotalProgress / 100.0));
+                progress.Raise(offset + (int)((double)p * (double)ofTotalProgress / 100.0));
             });
 
+            progress.RaiseCommand("Uninstalling current version...");
             UninstallOldInstallerIfFound();
             partialProgress(100, 0, 15);
 
+            progress.RaiseCommand("Installing VC redists...");
             InstallRedists();
             partialProgress(100, 15, 15);
+
+            progress.RaiseCommand("Installing...");
 
             var updateInfo = await CheckForUpdate();
             await DownloadReleases(updateInfo.ReleasesToApply);

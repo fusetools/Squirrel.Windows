@@ -30,7 +30,7 @@ namespace Update.GUI
 
     public interface IInstallerFactory
     {
-        Task Start(IProgress<InstallerProgress> progress, CancellationToken ct);
+        Task Start(IProgress<InstallerProgress> progress, Action<string> commandChanged, CancellationToken ct);
     }
 
     /// <summary>
@@ -70,7 +70,7 @@ namespace Update.GUI
             var ctSource = new CancellationTokenSource();
             var p = new ProgressView();
             installerFactory
-                .Start(p.Progress, ctSource.Token)
+                .Start(p.Progress, p.UpdateCommand, ctSource.Token)
                 .ContinueWith(t =>
                 {
                     if (t.IsCanceled)
