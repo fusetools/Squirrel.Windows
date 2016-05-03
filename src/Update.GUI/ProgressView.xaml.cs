@@ -30,7 +30,7 @@ namespace Update.GUI
 
         public void UpdateCommand(string command)
         {
-            CurrentCommand.Text = command;
+            CurrentCommand.Dispatcher.InvokeAsync(() => CurrentCommand.Text = command);
         }
 
         public ProgressView()
