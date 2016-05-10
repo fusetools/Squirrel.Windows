@@ -16,7 +16,7 @@
         <Grid>
             <TextBlock HorizontalAlignment="Center" FontSize="20" VerticalAlignment="Center">Installing Fuse</TextBlock>
         </Grid>
-        <TextBlock Grid.Row="1" HorizontalAlignment="Center" FontSize="10" VerticalAlignment="Center" Name="CurrentCommand"></TextBlock>
+        <TextBlock Grid.Row="1" HorizontalAlignment="Center" FontSize="12" VerticalAlignment="Center" Name="CurrentCommand"></TextBlock>
         <ProgressBar Grid.Row="2" Name="ProgressBar" HorizontalAlignment="Stretch" Height="20"></ProgressBar>
         <Button Grid.Row="3" Click="CancelClicked" VerticalAlignment="Center" HorizontalAlignment="Center">Cancel</Button>
     </Grid>

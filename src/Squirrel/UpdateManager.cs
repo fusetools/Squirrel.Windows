@@ -85,7 +85,7 @@ namespace Squirrel
             InstallRedists();
             partialProgress(100, 15, 15);
 
-            progress.RaiseCommand("Installing...");
+            progress.RaiseCommand("Extracting Fuse...");
 
             var updateInfo = await CheckForUpdate();
             await DownloadReleases(updateInfo.ReleasesToApply);
