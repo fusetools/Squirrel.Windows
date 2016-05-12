@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using NuGet;
 using Splat;
 using System.Threading;
+using System.Windows.Forms;
 using Squirrel.Shell;
 using ICSharpCode.SharpZipLib.Zip;
 using ICSharpCode.SharpZipLib.Core;
@@ -91,7 +92,8 @@ namespace Squirrel
                 if (currentRelease.Exists) {
                     var version = currentRelease.Name.ToSemanticVersion();
 
-                    try {
+                    try
+                    {
                         var squirrelAwareApps = SquirrelAwareExecutableDetector.GetAllSquirrelAwareApps(currentRelease.FullName);
 
                         if (isAppFolderDead(currentRelease.FullName)) throw new Exception("App folder is dead, but we're trying to uninstall it?");
@@ -101,7 +103,7 @@ namespace Squirrel
                             .Where(x => !x.Name.StartsWith("squirrel.", StringComparison.OrdinalIgnoreCase) && !x.Name.StartsWith("update.", StringComparison.OrdinalIgnoreCase))
                             .ToList();
 
-                        if (squirrelAwareApps.Count > 0) {
+                        /*if (squirrelAwareApps.Count > 0) {
                             await squirrelAwareApps.ForEachAsync(async exe => {
                                 using (var cts = new CancellationTokenSource()) { 
                                     cts.CancelAfter(10 * 1000);
@@ -112,10 +114,10 @@ namespace Squirrel
                                         this.Log().ErrorException("Failed to run cleanup hook, continuing: " + exe, ex);
                                     }
                                 }
-                            }, 1 /*at a time*/);
-                        } else {
-                            allApps.ForEach(x => RemoveShortcutsForExecutable(x.Name, ShortcutLocation.StartMenu | ShortcutLocation.Desktop));
-                        }
+                            }, 1 /*at a time);
+                        } else {*/
+                            squirrelAwareApps.ForEach(x => RemoveShortcutsForExecutable(x, ShortcutLocation.StartMenu));
+                        //}
 
                         // NB: Some people attempt to uninstall apps while 
                         // they're still running. I cannot even.
