@@ -61,14 +61,10 @@ namespace Squirrel.Update
 
         int main(string[] args)
         {
-            // NB: Trying to delete the app directory while we have Setup.log 
-            // open will actually crash the uninstaller
-            bool isUninstalling = args.Any(x => x.Contains("uninstall"));
-
-            using (var logger = new SetupLogLogger(isUninstalling) {Level = LogLevel.Info}) {
+            using (var logger = new SetupLogLogger() {Level = LogLevel.Info}) {
                 Locator.CurrentMutable.Register(() => logger, typeof (Splat.ILogger));
                 try {
-                    return executeCommandLine(args);
+                    return executeCommandLine(args, logger.LogPath);
                 } catch (Exception ex) {
                     logger.Write("Unhandled exception: " + ex, LogLevel.Fatal);
                     throw;
@@ -77,7 +73,7 @@ namespace Squirrel.Update
             }
         }
 
-        int executeCommandLine(string[] args)
+        int executeCommandLine(string[] args, string logPath)
         {
             var animatedGifWindowToken = new CancellationTokenSource();
 
@@ -169,11 +165,20 @@ namespace Squirrel.Update
                         InstallerWindow.ShowWindow(releaseEntry.Version.Version,
                                                     new InstallerFactory((progressSource, ct) =>
                                                     {
-                                                        installFunc(progressSource).Wait(ct);
+                                                        try
+                                                        {
+                                                            installFunc(progressSource).Wait(ct);
+                                                        }
+                                                        catch (Exception e)
+                                                        {         
+                                                            this.Log().FatalException("Failed to install", e);                                              
+                                                            throw;
+                                                        }                                                        
 
                                                         if(ct.IsCancellationRequested)
                                                             throw new OperationCanceledException("Installation was canceled");
-                                                    })).Wait();
+                                                    }),
+                                                    logPath: logPath).Wait();
                     }
                     else
                     {
@@ -817,16 +822,17 @@ namespace Squirrel.Update
         TextWriter inner;
         readonly object gate = 42;
         public Splat.LogLevel Level { get; set; }
+        public readonly string LogPath;
 
-        public SetupLogLogger(bool saveInTemp)
+        public SetupLogLogger()
         {
             for (int i=0; i < 10; i++) {
-                try {
-                    var dir = saveInTemp ?
-                        Path.GetTempPath() :
-                        Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+                try
+                {
+                    var dir = Path.GetTempPath();
 
                     var file = Path.Combine(dir, String.Format("FuseInstaller.{0}.log", i).Replace(".0.log", ".log"));
+                    LogPath = file;
                     var str = File.Open(file, FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
                     inner = new StreamWriter(str, Encoding.UTF8, 4096, false);
                     return;
@@ -837,7 +843,7 @@ namespace Squirrel.Update
             }
 
             inner = Console.Error;
-        }
+        }        
 
         public void Write(string message, LogLevel logLevel)
         {
@@ -845,7 +851,11 @@ namespace Squirrel.Update
                 return;
             }
 
-            lock (gate) inner.WriteLine("{0}> {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), message);
+            lock (gate)
+            {
+                inner.WriteLine("{0}> {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), message);
+                inner.Flush();
+            }
         }
 
         public void Dispose()

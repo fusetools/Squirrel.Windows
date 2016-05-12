@@ -18,7 +18,12 @@
             </ScrollViewer>
         </StackPanel>
         <Grid Grid.Row="1" VerticalAlignment="Bottom" Margin="0,20,0,0">
-            <Button IsDefault="True" HorizontalAlignment="Right" VerticalAlignment="Center" Click="OkClicked">Ok</Button>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" HorizontalAlignment="Left" Click="OnShowLog">Show Log</Button>
+            <Button Grid.Column="1" IsDefault="True" HorizontalAlignment="Right" VerticalAlignment="Center" Click="OkClicked">Ok</Button>
         </Grid>
     </Grid>
 </UserControl>

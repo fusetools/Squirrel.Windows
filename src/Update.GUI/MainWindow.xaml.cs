@@ -14,7 +14,7 @@ namespace Update.GUI
 
         public MainWindowDesignSample()
         {
-            InnerContent = new ErrorView(new Exception("Foo"), () => {});
+            InnerContent = new ErrorView("C:\\Foo", () => {});
         }
     }
 
@@ -40,11 +40,13 @@ namespace Update.GUI
     {
         readonly IInstallerFactory _installerFactory;
         readonly Action _exit;
+        readonly string _logPath;
 
-        public MainWindow(IInstallerFactory installerFactory, Version version, Action exit)
+        public MainWindow(IInstallerFactory installerFactory, Version version, Action exit, string logPath)
         {
             _installerFactory = installerFactory;
             _exit = exit;
+            _logPath = logPath;
 
             InitializeComponent();
             Title += " " + version.ToString(3) + " beta installer";
@@ -83,9 +85,7 @@ namespace Update.GUI
 
                         Dispatcher.Invoke(() =>
                         {
-                            InnerContent = new ErrorView(                                
-                                t.Exception,
-                                Exit);
+                            InnerContent = new ErrorView(_logPath, Exit);
                         });
                     }
                     else

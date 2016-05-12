@@ -8,7 +8,7 @@ namespace Update.GUI
 {
     public class InstallerWindow
     {
-        public static async Task ShowWindow(Version version, IInstallerFactory factory)
+        public static async Task ShowWindow(Version version, IInstallerFactory factory, string logPath)
         {
             var tcs = new TaskCompletionSource<object>();
             var thread = new Thread(() => 
@@ -16,7 +16,7 @@ namespace Update.GUI
                 try
                 {
                     var application = new Application();                    
-                    var installerWindow = new MainWindow(factory, version, () => application.Dispatcher.Invoke(() => application.Shutdown()));
+                    var installerWindow = new MainWindow(factory, version, () => application.Dispatcher.Invoke(() => application.Shutdown()), logPath);
                     application.Run(installerWindow);
                 }
                 finally
