@@ -73,10 +73,6 @@ namespace Update.GUI
                 .Start(p.Progress, p.UpdateCommand, ctSource.Token)
                 .ContinueWith(t =>
                 {
-                    if (t.IsCanceled)
-                    {
-                        Exit();
-                    }
                     if (t.IsFaulted)
                     {
                         if (t.Exception?.InnerException is OperationCanceledException)
