@@ -12,6 +12,8 @@ if not defined VSINSTALLDIR (
 )
 
 :BUILD
+echo "Windows SDK dir: %WindowsSdkDir%"
+echo "Include path: %INCLUDE%"
 msbuild /m /p:Configuration=Release Squirrel.sln || goto ERROR
 
 :SUCCESS
