@@ -6,9 +6,10 @@
     <owners>Paul Betts</owners>
     <licenseUrl>https://github.com/squirrel/Squirrel.Windows/blob/master/COPYING</licenseUrl>
     <projectUrl>https://github.com/squirrel/Squirrel.Windows</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/Squirrel/Squirrel.Windows/master/docs/artwork/Squirrel-Logo-Square.png</iconUrl>
 
     <dependencies>
-      <dependency id="DeltaCompressionDotNet" version="1.0.0" />
+      <dependency id="DeltaCompressionDotNet" version="[1.0,2.0)" />
       <dependency id="Splat" version="1.6.2" />
       <dependency id="Mono.Cecil" version="0.9.6.1" />
     </dependencies>
@@ -17,7 +18,7 @@
     <title>Squirrel for Windows</title>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>An installation and update framework for Windows applications</description>
-    <copyright>Copyright GitHubÂ© 2014</copyright>
+    <copyright>Copyright GitHub© 2014</copyright>
   </metadata>
   <files>
     <file src="Squirrel\bin\Release\Squirrel.*" target="lib\Net45" />
@@ -26,7 +27,9 @@
     <file src="Setup\bin\Release\Setup.exe" target="tools" />
     <file src="WriteZipToSetup\bin\Release\WriteZipToSetup.exe" target="tools" />
     <file src="Update\bin\Release\VCRedistsInstaller.exe" target="tools\VCRedistsInstaller.exe" />
+    <file src="StubExecutable\bin\Release\StubExecutable.exe" target="tools" />
     <file src="Update\bin\Release\Update.exe" target="tools\Squirrel.exe" />
+    <file src="Update\bin\Release\Update-Mono.exe" target="tools\Squirrel-Mono.exe" />
     <file src="Update\bin\Release\Update.com" target="tools\Squirrel.com" />
     <file src="Update.GUI\bin\Release\Update.GUI.dll" target="tools\Update.GUI.dll" />
     <file src="SyncReleases\bin\Release\SyncReleases.exe" target="tools" />

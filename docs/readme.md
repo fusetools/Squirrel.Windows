@@ -37,7 +37,7 @@ The **[Getting Started Guide](getting-started/0-overview.md)** provides a step-b
 * **Packaging** - documentation related to packaging app files and preparing them for release.
   * [Naming Conventions](using/naming.md) - overview of sources used in naming (e.g., shortcut name).
   * [NuGet Package Metadata](using/nuget-package-metadata.md) - overview of the NuGet metadata and its uses by Squirrel.
-  * [Using OctoPack](using/octopack.md) - steps to use OctoPack to build the source NuGet package to provide to `squirrel --releasify`.
+  * [Packaging Tools](using/packaging-tools.md) - tools available to assist in the process of packaging your application (e.g., NuGet, OctoPack, Auto.Squirrel)
   * [Squirrel Command Line](using/squirrel-command-line.md) - command line options for `Squirrel --releasify`
   * [Delta Packages](using/delta-packages.md) - an overview of how `Squirrel.exe` creates delta packages.
   * [Application Signing](using/application-signing.md) - adding code signing to `Setup.exe` and your application.
@@ -50,6 +50,7 @@ The **[Getting Started Guide](getting-started/0-overview.md)** provides a step-b
   * [Update Manager](using/update-manager.md) - reference guide for the `UpdateManager`.  
   * [GitHub](using/github.md) - overview of using GitHub for installing, distributing, and updating.  
   * [Debugging Updates](using/debugging-updates.md) - tips for debugging Squirrel.Windows updates.
+  * [Staged Rollouts](using/staged-rollouts.md) - how to use staged rollouts to ramp up install distribution over time
 
 
 ## Contributing

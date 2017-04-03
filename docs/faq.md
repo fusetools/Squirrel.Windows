@@ -11,13 +11,21 @@ Frequently Asked Questions for Squirrel.Windows, organized by area below.
    Yes, you can package a non-c# application in the same manner as described in the Getting Started guide. For additional customization, see [custom squirrel events for non-c# apps](using/custom-squirrel-events-non-CS.md).  
 1. **How do I migrate a ClickOnce app to Squirrel?**  
    You may want to look into the [ClickOnceToSquirrelMigrator](https://github.com/flagbug/ClickOnceToSquirrelMigrator) migration helper.
+1. **How can I determine if my app is a Squirrel app? I provide a squirrel and non-squirrel install version and want to know which is running.**  
+   You can check for the `Update.exe` in the parent directory to determine if the app is using Squirrel ([see #574](https://github.com/Squirrel/Squirrel.Windows/issues/574#issuecomment-176043311)).
+   
+   ```
+var assembly = Assembly.GetEntryAssembly();   
+var updateDotExe = Path.Combine(Path.GetDirectoryName(assembly.Location), '..', 'Update.exe');
+var isInstalled = File.Exists(updateDotExe);
+   ```
 
 ## Packaging
 
-1. **How can I tell was is going wrong with the releasify?**  
+1. **How can I tell what is going wrong with the releasify?**  
    Check `packages\Squirrel.Windows.VERSION\tools\SquirrelSetup.log` for logging information when creating packages.
 2. **Do I really have to add all the Squirrel DLLs to my app ?**
-   Yes, you have to add them all to the NuGet package, however, [others](https://github.com/Squirrel/Squirrel.Windows/issues/531) have used [ILMerge](http://research.microsoft.com/en-us/people/mbarnett/ilmerge.aspx) to generate a single assembly.
+   Yes, you have to add them all to the NuGet package, however, [others](https://github.com/Squirrel/Squirrel.Windows/issues/531) have used [ILMerge](https://www.microsoft.com/en-us/research/people/mbarnett/#ilmerge) to generate a single assembly.
 
 ## Distributing
 
@@ -43,7 +51,12 @@ This program is blocked by group policy. For more information, contact your syst
   The best course of action is to request that executables for Squirrel and your application be whitelisted by your corporate overlords.
 4. **No Shortcuts are Created for my Application**
    Verify that the NuGet Package Metadata `id` property doesn't have a [space or \[dot\]](https://github.com/Squirrel/Squirrel.Windows/issues/530) in it.
-
+5. **Can I use a different name for the `Setup.exe` install application?**  
+   Yes, you can rename the `Setup.exe` to what ever you wish (e.g., `MyAppSetup.exe`) ([see #611](https://github.com/Squirrel/Squirrel.Windows/issues/611))
+6. **Virus scanner is returning false positives on `MyApp.exe` or `Update.exe`. What can I do?**  
+   [Application Signing](using/application-signing.md) will help. In addition, you can submit false positives to the various antivirus authors (e.g., [Symantec](https://submit.symantec.com/false_positive/), [Microsoft](https://www.microsoft.com/security/portal/Submission/Submit.aspx), [AVG](http://www.avg.com/submit-sample), [Comodo](https://www.comodo.com/home/internet-security/submit.php), [McAfee](https://support.mcafeesaas.com/MCAFEE/_cs/AnswerDetail.aspx?aid=65), [List of Submission Locations](http://www.techsupportalert.com/content/how-report-malware-or-false-positives-multiple-antivirus-vendors.htm), [see #218](https://github.com/Squirrel/Squirrel.Windows/issues/218#issuecomment-166406180)).
+7. **Why is my application icon mangled after installation?**  
+    Application icons specified in the [NuGet Package Metadata](using/nuget-package-metadata.md) must be of type icon (.ICO) rather than an image file (source: [issue #745](https://github.com/Squirrel/Squirrel.Windows/issues/745))
 
 ## Updating
 
@@ -52,7 +65,9 @@ This program is blocked by group policy. For more information, contact your syst
 2. **I've Distributed a Broken Copy of Update.exe. How can I fix this?**  
    Sometimes, you might ship a broken copy of `Update.exe` that succeeds the initial install, but doesn't do what you want for some reason. To fix this, you can force an update of the `Update.exe` by including a copy of `Squirrel.exe` in your app update package. If Squirrel sees this, it will copy in this latest version to the local app installation.
 3. **How can you replace DLLs while they're loaded? Impossible!**  
-   You can't. So, how can you do it? The basic trick that ClickOnce uses is, you have a folder of EXEs and DLLs, and an Application Shortcut. When ClickOnce goes to update its stuff, it builds a completely *new* folder of binaries, then the last thing it does is rewrite the app shortcut to point to the new folder. See []
+   You can't. So, how can you do it? The basic trick that ClickOnce uses is, you have a folder of EXEs and DLLs, and an Application Shortcut. When ClickOnce goes to update its stuff, it builds a completely *new* folder of binaries, then the last thing it does is rewrite the app shortcut to point to the new folder.
+4. **My previous application version is still around after the update. Doesn't Squirrel clean up old versions?**  
+   The current and immediately previous version of your application are not deleted on clean up (see [issue #589](https://github.com/Squirrel/Squirrel.Windows/issues/589)). 
 
 ---
 | Return: [Table of Contents](readme.md) |

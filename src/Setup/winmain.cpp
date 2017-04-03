@@ -8,7 +8,7 @@
 #include "MachineInstaller.h"
 #include <cstdio>
 
-CAppModule _Module;
+CAppModule* _Module;
 
 typedef BOOL(WINAPI *SetDefaultDllDirectoriesFunction)(DWORD DirectoryFlags);
 
@@ -30,8 +30,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	if (cmdLine.Find(L"--checkInstall") >= 0) {
 		// If we're already installed, exit as fast as possible
 		if (!MachineInstaller::ShouldSilentInstall()) {
-			exitCode = 0;
-			goto out;
+			return 0;
 		}
 
 		// Make sure update.exe gets silent
@@ -42,22 +41,17 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	ATLASSERT(SUCCEEDED(hr));
 
 	AtlInitCommonControls(ICC_COOL_CLASSES | ICC_BAR_CLASSES);
-	hr = _Module.Init(NULL, hInstance);
+	_Module = new CAppModule();
+	hr = _Module->Init(NULL, hInstance);
 
 	bool isQuiet = (cmdLine.Find(L"-s") >= 0);
 	bool weAreUACElevated = CUpdateRunner::AreWeUACElevated() == S_OK;
-	bool explicitMachineInstall = (cmdLine.Find(L"--machine") >= 0);
+	bool attemptingToRerun = (cmdLine.Find(L"--rerunningWithoutUAC") >= 0);
 
-	if (explicitMachineInstall || weAreUACElevated) {
-		exitCode = MachineInstaller::PerformMachineInstallSetup();
-		if (exitCode != 0) goto out;
-		isQuiet = true;
-
-		// Make sure update.exe gets silent
-		if (explicitMachineInstall) {
-			wcscat(lpCmdLine, L" --silent");
-			printf("Machine-wide installation was successful! Users will see the app once they log out / log in again.\n");
-		}
+	if (weAreUACElevated && attemptingToRerun) {
+		CUpdateRunner::DisplayErrorMessage(CString(L"Please re-run this installer as a normal user instead of \"Run as Administrator\"."), NULL);
+		exitCode = E_FAIL;
+		goto out;
 	}
 
 	if (!CFxHelper::CanInstallDotNet4_5()) {
@@ -88,6 +82,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		wchar_t buf[4096];
 		HMODULE hMod = GetModuleHandle(NULL);
 		GetModuleFileNameW(hMod, buf, 4096);
+		wcscat(lpCmdLine, L" --rerunningWithoutUAC");
 
 		CUpdateRunner::ShellExecuteFromExplorer(buf, lpCmdLine);
 		exitCode = 0;
@@ -97,7 +92,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	exitCode = CUpdateRunner::ExtractUpdaterAndRun(lpCmdLine, false);
 
 out:
-	_Module.Term();
-	::CoUninitialize();
+	_Module->Term();
 	return exitCode;
 }

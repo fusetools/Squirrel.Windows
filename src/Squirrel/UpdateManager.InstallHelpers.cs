@@ -78,7 +78,7 @@ namespace Squirrel
                 var stringsToWrite = new[] {
                     new { Key = "DisplayName", Value = zp.Title ?? zp.Description ?? zp.Summary },
                     new { Key = "DisplayVersion", Value = zp.Version.ToString() },
-                    new { Key = "InstallDate", Value = DateTime.Now.ToString("yyyymmdd") },
+                    new { Key = "InstallDate", Value = DateTime.Now.ToString("yyyyMMdd") },
                     new { Key = "InstallLocation", Value = rootAppDirectory },
                     new { Key = "Publisher", Value = String.Join(",", zp.Authors) },
                     new { Key = "QuietUninstallString", Value = String.Format("{0} {1}", uninstallCmd, quietSwitch) },
@@ -135,7 +135,7 @@ namespace Squirrel
             public Task<RegistryKey> CreateUninstallerRegistryEntry()
             {
                 var updateDotExe = Path.Combine(rootAppDirectory, "Update.exe");
-                return CreateUninstallerRegistryEntry(String.Format("{0} --uninstall", updateDotExe), "-s");
+                return CreateUninstallerRegistryEntry(String.Format("\"{0}\" --uninstall", updateDotExe), "-s");
             }
 
             public void RemoveUninstallerRegistryEntry()
