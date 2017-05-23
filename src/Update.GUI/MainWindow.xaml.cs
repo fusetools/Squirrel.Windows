@@ -49,7 +49,7 @@ namespace Update.GUI
             _logPath = logPath;
 
             InitializeComponent();
-            Title += " " + version.ToString(3) + " beta installer";
+            Title += " " + version.ToString(3) + " installer";
             DataContext = this;
 
             var introductionView = new IntroductionView();
